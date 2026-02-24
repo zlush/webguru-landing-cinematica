@@ -1,0 +1,20 @@
+User-agent: *
+Allow: /
+
+# Motores principales y de IA explicitados
+User-agent: Googlebot
+Allow: /
+
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+Sitemap: https://webguru.cl/sitemap.xml
