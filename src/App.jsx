@@ -1098,11 +1098,19 @@ function ContactFormSection() {
       websiteUrl = 'https://' + websiteUrl
     }
 
+    let phoneValue = formData.get('phoneNumber')?.toString().trim() || ''
+
+    // Limpiar si el usuario pegó el número con el código de país (ej. +56 9...)
+    if (phoneValue.startsWith('+')) {
+      // Elimina cualquier +56, +54, etc. y espacios iniciales
+      phoneValue = phoneValue.replace(/^\+\d{1,3}\s*/, '')
+    }
+
     const payload = {
       firstName: formData.get('firstName'),
       lastName: formData.get('lastName'),
       email: formData.get('email'),
-      phone: formData.get('phone'),
+      phone: `${formData.get('countryCode')} ${phoneValue}`,
       companyName: formData.get('companyName'),
       website: websiteUrl,
       message: formData.get('message')
@@ -1184,7 +1192,22 @@ function ContactFormSection() {
                   </div>
                   <div>
                     <label className="block text-xs font-semibold text-wg-muted mb-1 ml-1 uppercase tracking-wide">Teléfono *</label>
-                    <input required name="phone" type="tel" className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-wg-blue/50 focus:ring-1 focus:ring-wg-blue/50 transition-all" placeholder="+56 9 1234 5678" />
+                    <div className="flex gap-2">
+                      <select
+                        name="countryCode"
+                        defaultValue="+56"
+                        className="bg-black/40 border border-white/10 rounded-xl px-2 py-3 text-white focus:outline-none focus:border-wg-blue/50 focus:ring-1 focus:ring-wg-blue/50 transition-all w-[100px] text-sm"
+                      >
+                        <option value="+56">🇨🇱 +56</option>
+                        <option value="+54">🇦🇷 +54</option>
+                        <option value="+52">🇲🇽 +52</option>
+                        <option value="+57">🇨🇴 +57</option>
+                        <option value="+51">🇵🇪 +51</option>
+                        <option value="+34">🇪🇸 +34</option>
+                        <option value="+1">🇺🇸 +1</option>
+                      </select>
+                      <input required name="phoneNumber" type="tel" className="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-wg-blue/50 focus:ring-1 focus:ring-wg-blue/50 transition-all" placeholder="9 1234 5678" />
+                    </div>
                   </div>
                 </div>
 
