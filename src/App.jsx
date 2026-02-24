@@ -1190,8 +1190,15 @@ function LeadForm() {
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-wg-muted mb-1 ml-1 uppercase tracking-wide">Sitio Web / Instagram</label>
-          <input name="website" type="text" className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-wg-blue/50 focus:ring-1 focus:ring-wg-blue/50 transition-all" placeholder="empresa.com" />
+          <label className="block text-xs font-semibold text-wg-muted mb-1 ml-1 uppercase tracking-wide">Sitio Web</label>
+          <input
+            name="website"
+            type="text"
+            pattern=".*\..*"
+            title="Debe incluir al menos un punto (ej: empresa.com o www.empresa.com)"
+            className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-wg-blue/50 focus:ring-1 focus:ring-wg-blue/50 transition-all"
+            placeholder="www.empresa.com"
+          />
         </div>
 
         <div>
