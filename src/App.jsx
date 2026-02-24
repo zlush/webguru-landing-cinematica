@@ -1077,9 +1077,162 @@ function Pricing() {
 /* ──────────────────────────────────────────
    CTA
 ────────────────────────────────────────── */
+/* ──────────────────────────────────────────
+   FORMULARIO / LEADCONNECTOR
+────────────────────────────────────────── */
+/* ──────────────────────────────────────────
+   FORMULARIO / LEADCONNECTOR
+────────────────────────────────────────── */
+function ContactFormSection() {
+  const [status, setStatus] = useState('idle')
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setStatus('loading')
+
+    const formData = new FormData(e.target)
+    let websiteUrl = formData.get('website')?.toString().trim() || ''
+
+    // Auto-añadir http:// si falta y el usuario escribió algo
+    if (websiteUrl && !/^https?:\/\//i.test(websiteUrl)) {
+      websiteUrl = 'https://' + websiteUrl
+    }
+
+    const payload = {
+      firstName: formData.get('firstName'),
+      lastName: formData.get('lastName'),
+      email: formData.get('email'),
+      phone: formData.get('phone'),
+      companyName: formData.get('companyName'),
+      website: websiteUrl,
+      message: formData.get('message')
+    }
+
+    try {
+      await fetch('https://services.leadconnectorhq.com/hooks/LkfSBtiKQRBvcEILtZlA/webhook-trigger/74e5b345-12b3-485d-aab6-60050adab8f1', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      })
+      setStatus('success')
+      e.target.reset()
+    } catch (error) {
+      console.error(error)
+      setStatus('error')
+    }
+  }
+
+  return (
+    <section id="contacto" className="py-24 px-6 md:px-12 relative overflow-hidden bg-wg-darker/30 border-y border-white/5">
+      <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-wg-blue/5 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/3 -z-10" />
+
+      <div className="max-w-6xl mx-auto flex flex-col lg:flex-row gap-16 items-center">
+        {/* Left Side: Copy */}
+        <div className="flex-1 text-center lg:text-left">
+          <span className="section-label mb-4 block lg:inline-block">Solicita una Demo</span>
+          <h2 className="font-sans font-extrabold text-4xl md:text-5xl tracking-tight leading-none mb-6">
+            Mapeamos y diseñamos tu <span className="font-serif italic font-semibold wg-gradient-text">sistema automatizado.</span>
+          </h2>
+          <p className="text-wg-muted text-lg max-w-md mx-auto lg:mx-0 leading-relaxed mb-8">
+            Completa el formulario para solicitar tu demostración de 30 minutos sin costo. Un experto analizará tu caso y te mostrará cómo escalar de manera eficiente.
+          </p>
+          <div className="hidden lg:flex flex-col gap-4 text-sm text-wg-muted">
+            <div className="flex items-center gap-2">
+              <div className="w-5 h-5 rounded-full bg-wg-blue/15 flex items-center justify-center flex-shrink-0"><Check size={10} className="text-wg-blue" /></div>
+              Atención personalizada 1 a 1
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-5 h-5 rounded-full bg-wg-blue/15 flex items-center justify-center flex-shrink-0"><Check size={10} className="text-wg-blue" /></div>
+              Mapeo de arquitectura de software
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-5 h-5 rounded-full bg-wg-blue/15 flex items-center justify-center flex-shrink-0"><Check size={10} className="text-wg-blue" /></div>
+              Sin compromisos ni permanencia
+            </div>
+          </div>
+        </div>
+
+        {/* Right Side: Form */}
+        <div className="w-full max-w-lg">
+          <div className="card-surface p-8 rounded-3xl border border-white/10 shadow-2xl relative">
+            {status === 'success' ? (
+              <div className="text-center py-12">
+                <div className="w-16 h-16 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto mb-6">
+                  <Check size={32} />
+                </div>
+                <h3 className="text-2xl font-bold mb-2">¡Solicitud enviada!</h3>
+                <p className="text-wg-muted">Nuestro equipo de expertos te contactará a la brevedad para coordinar la demostración.</p>
+                <button onClick={() => setStatus('idle')} className="mt-8 btn btn-outline w-full justify-center">Enviar otra solicitud</button>
+              </div>
+            ) : (
+              <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-wg-muted mb-1 ml-1 uppercase tracking-wide">Nombre *</label>
+                    <input required name="firstName" type="text" className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-wg-blue/50 focus:ring-1 focus:ring-wg-blue/50 transition-all" placeholder="Juan" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-wg-muted mb-1 ml-1 uppercase tracking-wide">Apellido *</label>
+                    <input required name="lastName" type="text" className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-wg-blue/50 focus:ring-1 focus:ring-wg-blue/50 transition-all" placeholder="Pérez" />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-wg-muted mb-1 ml-1 uppercase tracking-wide">Email *</label>
+                    <input required name="email" type="email" className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-wg-blue/50 focus:ring-1 focus:ring-wg-blue/50 transition-all" placeholder="juan@empresa.com" />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-wg-muted mb-1 ml-1 uppercase tracking-wide">Teléfono *</label>
+                    <input required name="phone" type="tel" className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-wg-blue/50 focus:ring-1 focus:ring-wg-blue/50 transition-all" placeholder="+56 9 1234 5678" />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-wg-muted mb-1 ml-1 uppercase tracking-wide">Empresa</label>
+                  <input name="companyName" type="text" className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-wg-blue/50 focus:ring-1 focus:ring-wg-blue/50 transition-all" placeholder="Nombre completo de tu negocio" />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-wg-muted mb-1 ml-1 uppercase tracking-wide">Sitio Web / Instagram</label>
+                  <input name="website" type="text" className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-wg-blue/50 focus:ring-1 focus:ring-wg-blue/50 transition-all" placeholder="empresa.com" />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-wg-muted mb-1 ml-1 uppercase tracking-wide">¿En qué podemos ayudarte?</label>
+                  <textarea name="message" rows="3" className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-wg-blue/50 focus:ring-1 focus:ring-wg-blue/50 transition-all" placeholder="Cuéntanos brevemente sobre tu proceso comercial actual..."></textarea>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={status === 'loading'}
+                  className="mt-2 btn btn-primary w-full justify-center py-4 text-base relative overflow-hidden group">
+                  <span className={`transition-all duration-300 ${status === 'loading' ? 'opacity-0 translate-y-4' : 'opacity-100 translate-y-0'}`}>
+                    Solicitar Agenda <ArrowUpRight size={18} className="inline-block ml-1" />
+                  </span>
+
+                  {status === 'loading' && (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    </div>
+                  )}
+                </button>
+                {status === 'error' && <p className="text-red-400 text-xs text-center mt-2">Hubo un error al enviar el formulario. Verifica tu conexión.</p>}
+              </form>
+            )}
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ──────────────────────────────────────────
+   CTA FINAL
+────────────────────────────────────────── */
 function CTAStrip() {
   return (
-    <section id="contacto" className="py-32 px-6 md:px-12 text-center relative overflow-hidden">
+    <section className="py-32 px-6 md:px-12 text-center relative overflow-hidden">
       {/* Guru cartoon — subtle background character */}
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 z-0 opacity-8 pointer-events-none select-none hidden md:block" style={{ width: '320px' }}>
         <img src="/guru-cartoon.png" alt="" className="w-full h-auto" style={{ filter: 'brightness(0.5) saturate(0.4)' }} />
@@ -1095,16 +1248,11 @@ function CTAStrip() {
           <span className="font-serif italic font-semibold wg-gradient-text">con menos esfuerzo.</span>
         </h2>
         <p className="text-wg-muted text-xl mb-12 max-w-lg mx-auto leading-relaxed">
-          30 minutos de consultoría gratuita. Mapeamos tus procesos y diseñamos tu sistema automatizado.
+          Estamos listos para implementar tus flujos de ventas, automatizar tus citas y multiplicar tus resultados.
         </p>
         <div className="flex flex-wrap gap-4 justify-center">
-          <a href="https://api.whatsapp.com/send/?phone=56945613260&text=Quiero+saber+más+de+WebGuru"
-            target="_blank" rel="noreferrer"
-            className="btn btn-primary text-lg px-8 py-4">
+          <a href="#contacto" className="btn btn-primary text-lg px-8 py-4">
             Agendar consultoría gratis <ArrowUpRight size={18} />
-          </a>
-          <a href="mailto:contacto@webguru.cl" className="btn btn-outline text-lg px-8 py-4">
-            contacto@webguru.cl
           </a>
         </div>
       </div>
@@ -1347,6 +1495,7 @@ export default function App() {
       <Features />
       <Philosophy />
       <Protocol />
+      <ContactFormSection />
       <Testimonials />
       <Pricing />
       <Resources />
