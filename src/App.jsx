@@ -1169,7 +1169,7 @@ function LeadForm() {
               <select
                 name="countryCode"
                 defaultValue="+56"
-                className="bg-black/40 border border-white/10 rounded-xl px-2 py-3 text-white focus:outline-none focus:border-wg-blue/50 focus:ring-1 focus:ring-wg-blue/50 transition-all w-[100px] text-sm"
+                className="flex-shrink-0 bg-black/40 border border-white/10 rounded-xl px-2 py-3 text-white focus:outline-none focus:border-wg-blue/50 focus:ring-1 focus:ring-wg-blue/50 transition-all w-[100px] text-sm"
               >
                 <option value="+56">🇨🇱 +56</option>
                 <option value="+54">🇦🇷 +54</option>
@@ -1179,7 +1179,7 @@ function LeadForm() {
                 <option value="+34">🇪🇸 +34</option>
                 <option value="+1">🇺🇸 +1</option>
               </select>
-              <input required name="phoneNumber" type="tel" className="flex-1 bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-wg-blue/50 focus:ring-1 focus:ring-wg-blue/50 transition-all" placeholder="9 1234 5678" />
+              <input required name="phoneNumber" type="tel" className="flex-1 min-w-0 bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-wg-blue/50 focus:ring-1 focus:ring-wg-blue/50 transition-all" placeholder="9 1234 5678" />
             </div>
           </div>
         </div>
