@@ -8,6 +8,7 @@ import {
   Star, Users, TrendingUp, Share2,
   Menu, X, ChevronDown, Plus, Minus
 } from 'lucide-react'
+import Spline from '@splinetool/react-spline'
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -98,37 +99,25 @@ function Hero() {
 
   return (
     <section ref={ref} className="relative h-screen flex flex-col justify-end overflow-hidden">
-      {/* Background — dimmed so guru is the visual focus */}
-      <div className="absolute inset-0 z-0">
-        <img
-          src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1920&q=80"
-          alt=""
-          className="w-full h-full object-cover object-center scale-105"
-          style={{ filter: 'brightness(0.25) saturate(0.6)' }}
-        />
-        {/* Bottom and left dark overlays for text legibility */}
-        <div className="absolute inset-0" style={{ background: 'linear-gradient(to top, #060910 0%, #060910 15%, rgba(6,9,16,0.92) 50%, rgba(6,9,16,0.75) 100%)' }} />
-        <div className="absolute inset-0" style={{ background: 'linear-gradient(to right, rgba(6,9,16,1) 0%, rgba(6,9,16,0.9) 40%, rgba(6,9,16,0.2) 70%, rgba(6,9,16,0) 100%)' }} />
-      </div>
+      {/* Background with Spline 3D */}
+      <div className="absolute inset-0 z-0 bg-[#060910] overflow-hidden">
+        <div className="absolute inset-0 z-0">
+          <Spline style={{ width: '100%', height: '100%', pointerEvents: 'auto' }} scene="https://prod.spline.design/IC8nRhZUIr6HQveG/scene.splinecode" />
+        </div>
 
-      {/* Guru — right side, fading in from bottom and left */}
-      <div className="absolute right-0 bottom-0 z-[2] hidden lg:block" style={{ width: '38%', height: '92%' }}>
-        {/* Left edge fade */}
-        <div className="absolute inset-0 z-10 pointer-events-none" style={{ background: 'linear-gradient(to right, #060910 0%, rgba(6,9,16,0.6) 25%, transparent 55%)' }} />
-        {/* Top edge fade */}
-        <div className="absolute inset-0 z-10 pointer-events-none" style={{ background: 'linear-gradient(to bottom, rgba(6,9,16,0.9) 0%, transparent 30%)' }} />
-        {/* Bottom edge fade */}
-        <div className="absolute inset-0 z-10 pointer-events-none" style={{ background: 'linear-gradient(to top, #060910 0%, transparent 18%)' }} />
-        <img
-          src="/guru-standing.png"
-          alt="WebGuru"
-          className="w-full h-full object-cover object-top"
-          style={{ filter: 'brightness(0.9) contrast(1.05)' }}
-        />
+        {/* Dark overlays to ensure text legibility over the 3D model */}
+        {/* Left-side dark fade */}
+        <div className="absolute inset-0 z-10 pointer-events-none" style={{ background: 'linear-gradient(to right, #060910 0%, rgba(6,9,16,0.6) 20%, transparent 60%)' }} />
+        {/* Bottom dark fade */}
+        <div className="absolute inset-0 z-10 pointer-events-none" style={{ background: 'linear-gradient(to top, #060910 0%, rgba(6,9,16,0.85) 15%, transparent 50%)' }} />
+        {/* Top edge subtle fade */}
+        <div className="absolute inset-x-0 top-0 h-32 z-10 pointer-events-none" style={{ background: 'linear-gradient(to bottom, rgba(6,9,16,0.9) 0%, transparent 100%)' }} />
       </div>
 
       {/* Content locked to bottom-left */}
-      <div className="relative z-10 w-full max-w-5xl mx-auto px-6 md:px-12 pb-14 md:pb-18">
+      <div className="relative z-20 w-full max-w-5xl mx-auto px-6 md:px-12 pb-14 md:pb-18 pointer-events-none">
+
+        {/* The text container will ignore pointer events, but its INTERACTIVE children (buttons/links) will receive them */}
         <div data-hero className="mb-4">
           <span className="section-label">CRM · IA · Automatizaciones · 14 años de experiencia</span>
         </div>
@@ -147,7 +136,7 @@ function Hero() {
           Capta, nutre y cierra más clientes — sin hojas de cálculo, sin procesos manuales.
         </p>
 
-        <div data-hero className="flex flex-wrap gap-4 mb-8">
+        <div data-hero className="flex flex-wrap gap-4 mb-8 pointer-events-auto">
           <a href="#contacto" className="btn btn-primary text-base px-8 py-4">
             Agenda tu demo gratis <ArrowUpRight size={16} />
           </a>
