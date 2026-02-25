@@ -6,7 +6,8 @@ import {
   Calendar, Bell, BarChart3, Zap, Bot,
   ChevronRight, Check, MapPin, ArrowUpRight, Globe,
   Star, Users, TrendingUp, Share2,
-  Menu, X, ChevronDown, Plus, Minus
+  Menu, X, ChevronDown, Plus, Minus,
+  Target, Mic
 } from 'lucide-react'
 import Spline from '@splinetool/react-spline'
 
@@ -705,6 +706,236 @@ function IntegrationsCard() {
   )
 }
 
+/* Card 7 — Lead Generation */
+function LeadGenCard() {
+  const [scanned, setScanned] = useState(0)
+  const contacts = [
+    { title: 'Gerente General - ABC1', email: true, phone: true },
+    { title: 'Dueño - Clínica Dental', email: true, phone: false },
+    { title: 'Tomador de Decisión - B2B', email: true, phone: true },
+    { title: 'Director Comercial - Tech', email: false, phone: true },
+  ]
+
+  useEffect(() => {
+    const t = setInterval(() => setScanned(s => (s + 1) % (contacts.length + 1)), 1600)
+    return () => clearInterval(t)
+  }, [contacts.length])
+
+  return (
+    <div className="card-surface rounded-4xl p-6 flex-1 flex flex-col gap-4">
+      <div className="flex items-center justify-between">
+        <h3 className="font-bold text-lg">Lead Generation</h3>
+        <span className="section-label">B2B / Directo</span>
+      </div>
+      <p className="text-sm text-wg-muted leading-relaxed">
+        Encontramos emails y números telefónicos de tomadores de decisiones o estrato ABC1 para campañas precisas de Email y WhatsApp.
+      </p>
+      <div className="flex-1 relative flex flex-col justify-center gap-2 mt-2 bg-wg-darker/50 rounded-2xl p-3 border border-white/5 overflow-hidden">
+        {/* Scanner line */}
+        <div className="absolute left-0 right-0 h-10 opacity-10 blur-xl pointer-events-none transition-all duration-700 ease-in-out"
+          style={{ top: `${(scanned / contacts.length) * 100}%`, transform: 'translateY(-50%)', background: '#0693E3' }} />
+        <div className="absolute left-0 right-0 h-[1px] bg-wg-blue/40 shadow-[0_0_8px_rgba(6,147,227,0.8)] pointer-events-none transition-all duration-700 ease-in-out z-10"
+          style={{ top: `${(scanned / contacts.length) * 100}%` }} />
+
+        {contacts.map((c, i) => {
+          const isScanned = scanned > i
+          return (
+            <div key={i} className={`relative z-0 flex items-center justify-between p-2.5 rounded-xl border transition-all duration-500 ${isScanned ? 'bg-wg-blue/10 border-wg-blue/20' : 'bg-transparent border-white/5'}`}>
+              <div className="flex items-center gap-2.5">
+                <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-colors duration-500 ${isScanned ? 'bg-wg-blue/20 text-wg-blue' : 'bg-wg-slate/20 text-wg-muted/50'}`}>
+                  <Target size={12} />
+                </div>
+                <div className={`text-[11px] font-medium transition-colors duration-500 ${isScanned ? 'text-white' : 'text-wg-muted'}`}>{c.title}</div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Mail size={12} className={`transition-all duration-500 ${isScanned && c.email ? 'text-emerald-400 scale-100' : 'text-wg-muted/20 scale-75'}`} />
+                <Phone size={12} className={`transition-all duration-500 ${isScanned && c.phone ? 'text-emerald-400 scale-100' : 'text-wg-muted/20 scale-75'}`} />
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+/* Card 8 — Gestión Reputacional */
+function ReputationCard() {
+  const [reviews, setReviews] = useState([])
+  const [rating, setRating] = useState(4.2)
+  const [count, setCount] = useState(124)
+
+  useEffect(() => {
+    let cancelled = false
+    const run = async () => {
+      setReviews([])
+      setRating(4.2)
+      setCount(124)
+      await new Promise(r => setTimeout(r, 1000))
+
+      const newReviews = [
+        { name: 'María S.', plat: 'Google Maps' },
+        { name: 'Juan P.', plat: 'Google Maps' },
+        { name: 'Ana V.', plat: 'TripAdvisor' }
+      ]
+
+      for (let i = 0; i < newReviews.length; i++) {
+        if (cancelled) return
+        setReviews(prev => [newReviews[i], ...prev])
+        setRating(r => Math.min(4.9, r + 0.3))
+        setCount(c => c + 1)
+        await new Promise(r => setTimeout(r, 1600))
+      }
+
+      await new Promise(r => setTimeout(r, 3000))
+      if (!cancelled) run()
+    }
+    run()
+    return () => { cancelled = true }
+  }, [])
+
+  return (
+    <div className="card-surface rounded-4xl p-6 flex-1 flex flex-col gap-4">
+      <div className="flex items-center justify-between">
+        <h3 className="font-bold text-lg">Gestión Reputacional</h3>
+        <span className="section-label">Automático</span>
+      </div>
+      <p className="text-sm text-wg-muted leading-relaxed">
+        Maximizamos la cantidad de reseñas de 5 estrellas en Google Maps y TripAdvisor para disparar tu prueba social.
+      </p>
+
+      <div className="flex-1 flex flex-col gap-3 mt-2">
+        <div className="flex items-center justify-between bg-wg-darker/80 p-4 rounded-3xl border border-white/5">
+          <div className="flex flex-col items-center">
+            <div className="text-4xl font-sans font-extrabold tracking-tighter text-white transition-all duration-500">
+              {rating.toFixed(1)}
+            </div>
+            <div className="flex gap-0.5 mt-1">
+              {[1, 2, 3, 4, 5].map(s => (
+                <Star key={s} size={11} className="fill-yellow-400 text-yellow-400" />
+              ))}
+            </div>
+          </div>
+          <div className="text-right">
+            <div className="text-xl font-bold text-white transition-all duration-500">+{count}</div>
+            <div className="text-[10px] uppercase tracking-wider text-wg-muted">Reseñas Totales</div>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-2 relative h-[100px] overflow-hidden" style={{ WebkitMaskImage: 'linear-gradient(to bottom, black 30%, transparent 100%)' }}>
+          {reviews.map((rev, i) => (
+            <div key={i + rev.name} className="flex items-center gap-3 bg-white/5 border border-white/10 rounded-xl p-2.5 transition-all duration-300 transform scale-100 opacity-100">
+              <div className="w-8 h-8 rounded-full bg-emerald-400/20 flex items-center justify-center flex-shrink-0">
+                <Star size={12} className="fill-emerald-400 text-emerald-400" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-xs font-semibold text-white/90">Nueva reseña 5 estrellas</div>
+                <div className="text-[10px] text-wg-muted truncate">{rev.name} en {rev.plat}</div>
+              </div>
+            </div>
+          ))}
+          {reviews.length === 0 && (
+            <div className="absolute inset-0 flex items-center justify-center text-xs text-wg-muted/40 font-medium">
+              Esperando testimonios...
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* Card 9 — IA en Llamadas */
+function AIMeetingCard() {
+  const [activeStep, setActiveStep] = useState(0)
+
+  const steps = [
+    'Transcribiendo...',
+    'Evaluando protocolo...',
+    'Aplicando checks...',
+    'Resumen generado'
+  ]
+
+  const checks = [
+    { label: 'Saludo y calificación', time: 1 },
+    { label: 'Manejo de objeción', time: 2 },
+    { label: 'Cierre de la venta', time: 3 },
+  ]
+
+  useEffect(() => {
+    let cancelled = false
+    const run = async () => {
+      setActiveStep(0)
+      await new Promise(r => setTimeout(r, 1200))
+
+      for (let i = 1; i <= checks.length + 1; i++) {
+        if (cancelled) return
+        setActiveStep(i)
+        await new Promise(r => setTimeout(r, 1400))
+      }
+
+      await new Promise(r => setTimeout(r, 3000))
+      if (!cancelled) run()
+    }
+    run()
+    return () => { cancelled = true }
+  }, [])
+
+  return (
+    <div className="card-surface rounded-4xl p-6 flex-1 flex flex-col gap-4">
+      <div className="flex items-center justify-between">
+        <h3 className="font-bold text-lg">IA Auditor en Llamadas</h3>
+        <div className="flex items-center gap-2 section-label">
+          <Mic size={10} className="text-red-400 animate-pulse" />
+          Live
+        </div>
+      </div>
+      <p className="text-sm text-wg-muted leading-relaxed">
+        Se suma a tus reuniones, transcribe, hace resumen automáticamente y audita si tu equipo sigue tus lineamientos métricos.
+      </p>
+
+      <div className="flex-1 bg-wg-dark/60 rounded-2xl border border-white/5 overflow-hidden flex flex-col mt-2">
+        <div className="px-3 py-2 bg-wg-darker border-b border-white/5 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-5 h-5 rounded wg-gradient flex items-center justify-center">
+              <Bot size={11} className="text-white" />
+            </div>
+            <span className="text-[10px] font-semibold text-white/80">Reunión con Cliente</span>
+          </div>
+          <span className="text-[9px] font-mono text-wg-blue">{steps[Math.min(activeStep, steps.length - 1)]}</span>
+        </div>
+
+        <div className="p-3 flex flex-col gap-3 relative flex-1">
+          <div className="flex items-center justify-center h-5 gap-0.5 opacity-50 overflow-hidden">
+            {[...Array(16)].map((_, i) => (
+              <div key={i} className="w-1 bg-emerald-400 rounded-full transition-all duration-200"
+                style={{
+                  height: activeStep < 4 ? `${Math.max(10, Math.random() * 100)}%` : '10%',
+                }}
+              />
+            ))}
+          </div>
+
+          <div className="flex flex-col gap-2 mt-auto">
+            <div className="text-[9px] font-semibold tracking-wider text-wg-muted/60 uppercase mb-0.5 line-through">Protocolo Auditable</div>
+            {checks.map((chk, i) => {
+              const passed = activeStep >= chk.time
+              return (
+                <div key={i} className={`flex items-center gap-2 text-[10px] transition-all duration-300 ${passed ? 'text-white/90' : 'text-wg-muted/30'}`}>
+                  <div className={`w-3.5 h-3.5 rounded-full flex items-center justify-center transition-all duration-300 ${passed ? 'bg-emerald-500/20 shadow-[0_0_8px_rgba(52,211,153,0.3)] text-emerald-400' : 'bg-transparent border border-white/10 text-transparent'}`}>
+                    <Check size={8} />
+                  </div>
+                  {chk.label}
+                </div>
+              )
+            })}
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 /* ── Features section wrapper ── */
 function Features() {
   const ref = useRef(null)
@@ -737,10 +968,16 @@ function Features() {
         <div data-feat className="min-h-[420px] flex flex-col"><SchedulerCard /></div>
       </div>
       {/* Row 2 */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch mb-6">
         <div data-feat className="min-h-[420px] flex flex-col"><WebsiteCard /></div>
         <div data-feat className="min-h-[420px] flex flex-col"><AutomationCard /></div>
         <div data-feat className="min-h-[420px] flex flex-col"><IntegrationsCard /></div>
+      </div>
+      {/* Row 3 */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
+        <div data-feat className="min-h-[420px] flex flex-col"><LeadGenCard /></div>
+        <div data-feat className="min-h-[420px] flex flex-col"><ReputationCard /></div>
+        <div data-feat className="min-h-[420px] flex flex-col"><AIMeetingCard /></div>
       </div>
     </section>
   )
