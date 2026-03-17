@@ -202,12 +202,18 @@ function VideoScrub() {
     }
     const onReady = () => setLoaded(true)
 
+    // loadeddata fires as soon as the first frame is decoded — much earlier
+    // than canplaythrough, works on slow connections and strict browsers
     video.addEventListener('progress', onProgress)
+    video.addEventListener('loadeddata', onReady)
+    video.addEventListener('canplay', onReady)
     video.addEventListener('canplaythrough', onReady)
-    if (video.readyState >= 3) setLoaded(true)
+    if (video.readyState >= 2) setLoaded(true)
 
     return () => {
       video.removeEventListener('progress', onProgress)
+      video.removeEventListener('loadeddata', onReady)
+      video.removeEventListener('canplay', onReady)
       video.removeEventListener('canplaythrough', onReady)
     }
   }, [])
@@ -240,12 +246,15 @@ function VideoScrub() {
       const idx = progress >= 0.70 ? 2 : progress >= 0.38 ? 1 : 0
       setActivePanel(prev => prev === idx ? prev : idx)
 
-      // Seek — queue pattern: only one seek in flight at a time
+      // Seek — queue pattern: only one seek in flight at a time.
+      // Guard: don't seek if already at target (avoids seeked never firing at t=0)
       if (video.readyState >= 2 && video.duration) {
         const t = progress * video.duration
         if (!seekPending.current) {
-          video.currentTime = t
-          seekPending.current = true
+          if (Math.abs(video.currentTime - t) > 0.001) {
+            video.currentTime = t
+            seekPending.current = true
+          }
         } else {
           pendingTime.current = t
         }
