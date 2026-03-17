@@ -276,7 +276,7 @@ function VideoScrub() {
   }, [])
 
   return (
-    <section ref={wrapperRef} style={{ height: '400vh' }} className="relative">
+    <section ref={wrapperRef} style={{ height: '200vh' }} className="relative">
       <div className="sticky top-0 bg-[#0A0E1A] overflow-hidden" style={{ height: '100svh' }}>
 
         {/* ── DESKTOP layout: cards left + video right ── */}
