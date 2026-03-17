@@ -161,6 +161,261 @@ function Hero() {
 }
 
 /* ──────────────────────────────────────────
+   VIDEO SCRUB — Los Tres Pilares
+────────────────────────────────────────── */
+function VideoScrub() {
+  const wrapperRef = useRef(null)
+  const videoRef = useRef(null)
+  const [loaded, setLoaded] = useState(false)
+  const [loadPct, setLoadPct] = useState(0)
+  const [activePanel, setActivePanel] = useState(0)
+  const seekPending = useRef(false)
+  const pendingTime = useRef(null)
+
+  const panels = [
+    {
+      label: '01 / Alcance',
+      title: 'Más presencia,\nmás clientes.',
+      sub: 'Sitios, landing pages y campañas que atraen prospectos calificados.',
+    },
+    {
+      label: '02 / Conversión',
+      title: 'IA que convierte\ncada contacto.',
+      sub: 'CRM omnicanal, asistente IA 24/7 y automatizaciones que cierran ventas.',
+    },
+    {
+      label: '03 / Retención',
+      title: 'Clientes que\nvuelven solos.',
+      sub: 'Seguimiento inteligente, reactivaciones y fidelización automática.',
+    },
+  ]
+
+  // Track buffering progress and readiness
+  useEffect(() => {
+    const video = videoRef.current
+    if (!video) return
+
+    const onProgress = () => {
+      if (video.buffered.length && video.duration) {
+        setLoadPct(video.buffered.end(video.buffered.length - 1) / video.duration)
+      }
+    }
+    const onReady = () => setLoaded(true)
+
+    video.addEventListener('progress', onProgress)
+    video.addEventListener('canplaythrough', onReady)
+    if (video.readyState >= 3) setLoaded(true)
+
+    return () => {
+      video.removeEventListener('progress', onProgress)
+      video.removeEventListener('canplaythrough', onReady)
+    }
+  }, [])
+
+  // Wire scroll → video currentTime via rAF + seek queue (no stuck frames)
+  useEffect(() => {
+    const video = videoRef.current
+    const wrapper = wrapperRef.current
+    if (!video || !wrapper) return
+
+    // When a seek finishes, immediately apply any queued position
+    const onSeeked = () => {
+      seekPending.current = false
+      if (pendingTime.current !== null) {
+        video.currentTime = pendingTime.current
+        seekPending.current = true
+        pendingTime.current = null
+      }
+    }
+    video.addEventListener('seeked', onSeeked)
+
+    let rafPending = false
+    const update = () => {
+      rafPending = false
+      const totalHeight = wrapper.offsetHeight - window.innerHeight
+      const scrolled = Math.max(0, -wrapper.getBoundingClientRect().top)
+      const progress = Math.min(1, scrolled / totalHeight)
+
+      // Panel swap
+      const idx = progress >= 0.70 ? 2 : progress >= 0.38 ? 1 : 0
+      setActivePanel(prev => prev === idx ? prev : idx)
+
+      // Seek — queue pattern: only one seek in flight at a time
+      if (video.readyState >= 2 && video.duration) {
+        const t = progress * video.duration
+        if (!seekPending.current) {
+          video.currentTime = t
+          seekPending.current = true
+        } else {
+          pendingTime.current = t
+        }
+      }
+    }
+
+    const onScroll = () => {
+      if (!rafPending) {
+        rafPending = true
+        requestAnimationFrame(update)
+      }
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      video.removeEventListener('seeked', onSeeked)
+    }
+  }, [])
+
+  return (
+    <section ref={wrapperRef} style={{ height: '400vh' }} className="relative">
+      <div className="sticky top-0 bg-[#0A0E1A] overflow-hidden" style={{ height: '100svh' }}>
+
+        {/* ── DESKTOP layout: cards left + video right ── */}
+        <div className="hidden md:flex h-full items-center justify-center gap-12 lg:gap-24 w-full max-w-5xl mx-auto px-10">
+
+          {/* Cards column */}
+          <div className="flex flex-col gap-3 w-72 lg:w-80 flex-shrink-0">
+            {panels.map((p, i) => (
+              <div
+                key={i}
+                className="rounded-2xl px-5 py-4 transition-all duration-500"
+                style={{
+                  background: activePanel === i ? 'rgba(30,42,58,0.7)' : 'rgba(18,24,38,0.45)',
+                  border: activePanel === i ? '1px solid rgba(123,97,255,0.4)' : '1px solid rgba(255,255,255,0.06)',
+                  backdropFilter: 'blur(16px)',
+                  transform: activePanel === i ? 'scale(1.02)' : 'scale(0.98)',
+                  boxShadow: activePanel === i ? '0 8px 32px rgba(123,97,255,0.12)' : 'none',
+                }}
+              >
+                <span className="section-label mb-2 block">{p.label}</span>
+                <h3
+                  className="font-sans font-extrabold tracking-tight mb-1.5 transition-all duration-500"
+                  style={{
+                    fontSize: 'clamp(1rem, 2vw, 1.25rem)', lineHeight: 1.1,
+                    background: activePanel === i ? 'linear-gradient(135deg, #0693E3 0%, #9B51E0 100%)' : 'none',
+                    WebkitBackgroundClip: activePanel === i ? 'text' : 'unset',
+                    WebkitTextFillColor: activePanel === i ? 'transparent' : 'rgba(255,255,255,0.45)',
+                    backgroundClip: activePanel === i ? 'text' : 'unset',
+                    color: activePanel === i ? 'transparent' : 'rgba(255,255,255,0.45)',
+                  }}
+                >
+                  {p.title.replace('\n', ' ')}
+                </h3>
+                <p className="text-xs leading-relaxed transition-all duration-500"
+                  style={{ color: activePanel === i ? 'rgba(180,196,220,0.85)' : 'rgba(255,255,255,0.25)' }}>
+                  {p.sub}
+                </p>
+              </div>
+            ))}
+            <div className="flex gap-2 pt-1 pl-1">
+              {panels.map((_, i) => (
+                <div key={i} className="rounded-full" style={{
+                  height: '3px', width: activePanel === i ? '24px' : '8px',
+                  background: activePanel === i ? '#7B61FF' : 'rgba(255,255,255,0.18)',
+                  transition: 'all 0.4s ease',
+                }} />
+              ))}
+            </div>
+          </div>
+
+          {/* Video */}
+          <div className="flex-shrink-0 relative" style={{ width: 'min(52vh, 520px)', height: 'min(52vh, 520px)' }}>
+            <video
+              ref={videoRef}
+              src="/pillars-scrub.mp4"
+              preload="auto" muted playsInline disablePictureInPicture
+              className={`w-full h-full object-cover transition-opacity duration-700 ${loaded ? 'opacity-100' : 'opacity-0'}`}
+              style={{
+                pointerEvents: 'none',
+                maskImage: 'radial-gradient(ellipse 50% 54% at 50% 48%, black 10%, rgba(0,0,0,0.55) 38%, transparent 100%)',
+                WebkitMaskImage: 'radial-gradient(ellipse 50% 54% at 50% 48%, black 10%, rgba(0,0,0,0.55) 38%, transparent 100%)',
+              }}
+            />
+            {!loaded && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-28 h-px bg-white/10 rounded-full overflow-hidden">
+                  <div className="h-full rounded-full transition-all duration-300"
+                    style={{ width: `${Math.round(loadPct * 100)}%`, background: 'linear-gradient(to right, #0693E3, #9B51E0)' }} />
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* ── MOBILE layout: video top-half, active card bottom ── */}
+        <div className="md:hidden flex flex-col h-full">
+
+          {/* Video — top 55% of screen */}
+          <div className="relative flex-shrink-0" style={{ height: '55svh' }}>
+            <video
+              ref={el => { if (el) videoRef.current = el }}
+              src="/pillars-scrub.mp4"
+              preload="auto" muted playsInline disablePictureInPicture
+              className={`w-full h-full object-cover transition-opacity duration-700 ${loaded ? 'opacity-100' : 'opacity-0'}`}
+              style={{
+                pointerEvents: 'none',
+                maskImage: 'radial-gradient(ellipse 70% 72% at 50% 46%, black 10%, rgba(0,0,0,0.5) 48%, transparent 100%)',
+                WebkitMaskImage: 'radial-gradient(ellipse 70% 72% at 50% 46%, black 10%, rgba(0,0,0,0.5) 48%, transparent 100%)',
+              }}
+            />
+            {!loaded && (
+              <div className="absolute inset-0 flex items-center justify-center">
+                <div className="w-24 h-px bg-white/10 rounded-full overflow-hidden">
+                  <div className="h-full rounded-full transition-all duration-300"
+                    style={{ width: `${Math.round(loadPct * 100)}%`, background: 'linear-gradient(to right, #0693E3, #9B51E0)' }} />
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Active card — bottom 45% */}
+          <div className="relative flex-1 flex flex-col justify-center px-6 pb-6">
+            {panels.map((p, i) => (
+              <div
+                key={i}
+                className="absolute inset-x-6 rounded-2xl px-5 py-5"
+                style={{
+                  top: '50%', transform: activePanel === i ? 'translateY(-50%)' : 'translateY(calc(-50% + 12px))',
+                  opacity: activePanel === i ? 1 : 0,
+                  transition: 'opacity 0.5s ease, transform 0.5s ease',
+                  background: 'rgba(30,42,58,0.75)',
+                  border: '1px solid rgba(123,97,255,0.35)',
+                  backdropFilter: 'blur(16px)',
+                }}
+              >
+                <span className="section-label mb-2 block">{p.label}</span>
+                <h3 className="font-sans font-extrabold tracking-tight wg-gradient-text mb-2"
+                  style={{ fontSize: '1.25rem', lineHeight: 1.1 }}>
+                  {p.title.replace('\n', ' ')}
+                </h3>
+                <p className="text-xs text-wg-muted leading-relaxed">{p.sub}</p>
+              </div>
+            ))}
+
+            {/* Progress pills */}
+            <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-2">
+              {panels.map((_, i) => (
+                <div key={i} className="rounded-full" style={{
+                  height: '3px', width: activePanel === i ? '24px' : '8px',
+                  background: activePanel === i ? '#7B61FF' : 'rgba(255,255,255,0.18)',
+                  transition: 'all 0.4s ease',
+                }} />
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Edge fades (both breakpoints) */}
+        <div className="absolute inset-x-0 top-0 h-16 pointer-events-none z-10"
+          style={{ background: 'linear-gradient(to bottom, #0A0E1A, transparent)' }} />
+        <div className="absolute inset-x-0 bottom-0 h-16 pointer-events-none z-10"
+          style={{ background: 'linear-gradient(to top, #0A0E1A, transparent)' }} />
+      </div>
+    </section>
+  )
+}
+
+/* ──────────────────────────────────────────
    CLIENT LOGOS
 ────────────────────────────────────────── */
 function ClientLogos() {
@@ -1760,6 +2015,7 @@ export default function App() {
       <Hero />
       <ContactFormSection />
       <ClientLogos />
+      <VideoScrub />
       <Pillars />
       <Features />
       <Philosophy />
