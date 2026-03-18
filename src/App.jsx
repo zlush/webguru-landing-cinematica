@@ -165,7 +165,8 @@ function Hero() {
 ────────────────────────────────────────── */
 function VideoScrub() {
   const wrapperRef = useRef(null)
-  const videoRef = useRef(null)
+  const videoRef = useRef(null)   // desktop video (primary)
+  const video2Ref = useRef(null)  // mobile video (mirror)
   const [loaded, setLoaded] = useState(false)
   const [loadPct, setLoadPct] = useState(0)
   const [activePanel, setActivePanel] = useState(0)
@@ -190,47 +191,60 @@ function VideoScrub() {
     },
   ]
 
-  // Track buffering progress and readiness
+  // Track buffering progress and readiness — listens to both videos
   useEffect(() => {
-    const video = videoRef.current
-    if (!video) return
+    const videos = [videoRef.current, video2Ref.current].filter(Boolean)
+    if (!videos.length) return
 
+    const onReady = () => setLoaded(true)
     const onProgress = () => {
-      if (video.buffered.length && video.duration) {
-        setLoadPct(video.buffered.end(video.buffered.length - 1) / video.duration)
+      const v = videos[0]
+      if (v.buffered.length && v.duration) {
+        setLoadPct(v.buffered.end(v.buffered.length - 1) / v.duration)
       }
     }
-    const onReady = () => setLoaded(true)
 
-    // loadeddata fires as soon as the first frame is decoded — much earlier
-    // than canplaythrough, works on slow connections and strict browsers
-    video.addEventListener('progress', onProgress)
-    video.addEventListener('loadeddata', onReady)
-    video.addEventListener('canplay', onReady)
-    video.addEventListener('canplaythrough', onReady)
-    if (video.readyState >= 2) setLoaded(true)
+    videos.forEach(v => {
+      v.addEventListener('loadeddata', onReady)
+      v.addEventListener('canplay', onReady)
+      v.addEventListener('canplaythrough', onReady)
+      if (v.readyState >= 2) onReady()
+    })
+    videos[0].addEventListener('progress', onProgress)
 
     return () => {
-      video.removeEventListener('progress', onProgress)
-      video.removeEventListener('loadeddata', onReady)
-      video.removeEventListener('canplay', onReady)
-      video.removeEventListener('canplaythrough', onReady)
+      videos.forEach(v => {
+        v.removeEventListener('loadeddata', onReady)
+        v.removeEventListener('canplay', onReady)
+        v.removeEventListener('canplaythrough', onReady)
+      })
+      videos[0].removeEventListener('progress', onProgress)
     }
   }, [])
 
   // Wire scroll → video currentTime via rAF + seek queue (no stuck frames)
   useEffect(() => {
-    const video = videoRef.current
+    const video = videoRef.current   // primary (desktop)
+    const video2 = video2Ref.current // mirror (mobile)
     const wrapper = wrapperRef.current
     if (!video || !wrapper) return
+
+    // Mirror helper — applies time to the other video without queuing
+    const mirror = (t) => {
+      if (video2 && video2.readyState >= 2 && Math.abs(video2.currentTime - t) > 0.001) {
+        video2.currentTime = t
+      }
+    }
 
     // When a seek finishes, immediately apply any queued position
     const onSeeked = () => {
       seekPending.current = false
       if (pendingTime.current !== null) {
-        video.currentTime = pendingTime.current
-        seekPending.current = true
+        const t = pendingTime.current
         pendingTime.current = null
+        video.currentTime = t
+        seekPending.current = true
+        mirror(t)
       }
     }
     video.addEventListener('seeked', onSeeked)
@@ -254,6 +268,7 @@ function VideoScrub() {
           if (Math.abs(video.currentTime - t) > 0.001) {
             video.currentTime = t
             seekPending.current = true
+            mirror(t)
           }
         } else {
           pendingTime.current = t
@@ -357,7 +372,7 @@ function VideoScrub() {
           {/* Video — top 55% of screen */}
           <div className="relative flex-shrink-0" style={{ height: '55svh' }}>
             <video
-              ref={el => { if (el) videoRef.current = el }}
+              ref={video2Ref}
               src="/pillars-scrub.mp4"
               preload="auto" muted playsInline disablePictureInPicture
               className={`w-full h-full object-cover transition-opacity duration-700 ${loaded ? 'opacity-100' : 'opacity-0'}`}
