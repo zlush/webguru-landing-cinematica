@@ -191,14 +191,15 @@ function VideoScrub() {
     },
   ]
 
-  // Track buffering progress and readiness — listens to both videos
+  // Track buffering progress — loading bar only, video is always visible
   useEffect(() => {
     const videos = [videoRef.current, video2Ref.current].filter(Boolean)
     if (!videos.length) return
 
     const onReady = () => setLoaded(true)
     const onProgress = () => {
-      const v = videos[0]
+      // Use whichever video has buffering info
+      const v = videos.find(v => v.buffered.length && v.duration) || videos[0]
       if (v.buffered.length && v.duration) {
         setLoadPct(v.buffered.end(v.buffered.length - 1) / v.duration)
       }
@@ -208,17 +209,21 @@ function VideoScrub() {
       v.addEventListener('loadeddata', onReady)
       v.addEventListener('canplay', onReady)
       v.addEventListener('canplaythrough', onReady)
+      v.addEventListener('progress', onProgress)
       if (v.readyState >= 2) onReady()
     })
-    videos[0].addEventListener('progress', onProgress)
+
+    // Fallback: force hide loading bar after 5s regardless of events
+    const fallback = setTimeout(() => setLoaded(true), 5000)
 
     return () => {
+      clearTimeout(fallback)
       videos.forEach(v => {
         v.removeEventListener('loadeddata', onReady)
         v.removeEventListener('canplay', onReady)
         v.removeEventListener('canplaythrough', onReady)
+        v.removeEventListener('progress', onProgress)
       })
-      videos[0].removeEventListener('progress', onProgress)
     }
   }, [])
 
@@ -348,7 +353,7 @@ function VideoScrub() {
               ref={videoRef}
               src="/pillars-scrub.mp4"
               preload="auto" muted playsInline disablePictureInPicture
-              className={`w-full h-full object-cover transition-opacity duration-700 ${loaded ? 'opacity-100' : 'opacity-0'}`}
+              className="w-full h-full object-cover"
               style={{
                 pointerEvents: 'none',
                 maskImage: 'radial-gradient(ellipse 50% 54% at 50% 48%, black 10%, rgba(0,0,0,0.55) 38%, transparent 100%)',
@@ -375,7 +380,7 @@ function VideoScrub() {
               ref={video2Ref}
               src="/pillars-scrub.mp4"
               preload="auto" muted playsInline disablePictureInPicture
-              className={`w-full h-full object-cover transition-opacity duration-700 ${loaded ? 'opacity-100' : 'opacity-0'}`}
+              className="w-full h-full object-cover"
               style={{
                 pointerEvents: 'none',
                 maskImage: 'radial-gradient(ellipse 70% 72% at 50% 46%, black 10%, rgba(0,0,0,0.5) 48%, transparent 100%)',
