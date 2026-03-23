@@ -111,20 +111,23 @@ function StepperInput({ label, value, onChange, min = 1, max = 100, suffix = '' 
 }
 
 function LeadSlider({ value, onChange }) {
-  const pct = (value / 500000) * 100
+  const pct = (value / 5000) * 100
   return (
     <div className="space-y-2">
       <div className="flex justify-between items-center">
-        <label className="text-sm font-medium text-gray-300">Leads (Alcance)</label>
+        <label className="text-sm font-medium text-gray-300">Leads mensuales</label>
         <span className="text-sm font-bold text-white bg-white/10 px-3 py-1 rounded-lg tabular-nums">
-          {fmtN(value)}
+          {fmtN(value)} / mes
         </span>
       </div>
-      <input type="range" min={100} max={500000} step={100} value={value}
+      <input type="range" min={0} max={5000} step={50} value={value}
         onChange={(e) => onChange(Number(e.target.value))}
         className="w-full h-2 rounded-lg appearance-none cursor-pointer accent-purple-500"
-        style={{ background: `linear-gradient(to right,#7B61FF ${pct / 5}%,#374151 ${pct / 5}%)` }}
+        style={{ background: `linear-gradient(to right,#7B61FF ${pct}%,#374151 ${pct}%)` }}
       />
+      <div className="flex justify-between text-[9px] text-gray-600 mt-0.5">
+        <span>0</span><span>1.250</span><span>2.500</span><span>3.750</span><span>5.000</span>
+      </div>
     </div>
   )
 }
@@ -165,7 +168,7 @@ function BarRow({ label, value, max, color, fmt: f = fmt, negative = false, bold
 
 export default function Calculadora() {
   // Alcance
-  const [leads, setLeads] = useState(10000)
+  const [leads, setLeads] = useState(1000)
 
   // Conversión
   const [conversionRate, setConversionRate] = useState(2.5)
@@ -177,7 +180,7 @@ export default function Calculadora() {
   // Empresa
   const [avgPrice, setAvgPrice] = useState(150)
   const [avgCost, setAvgCost] = useState(60)
-  const [fixedCosts, setFixedCosts] = useState(300000)
+  const [fixedCosts, setFixedCosts] = useState(120000)
   const [empresaOpen, setEmpresaOpen] = useState(false)
 
   // ── Calculations ──────────────────────────────────────────────────────────
@@ -188,8 +191,9 @@ export default function Calculadora() {
   const ltvMargin    = ltvRevenue - ltvCost
   const marginPct    = ltvRevenue > 0 ? (ltvMargin / ltvRevenue) * 100 : 0
 
-  // Métricas anuales
-  const customers        = Math.round(leads * (conversionRate / 100))
+  // Métricas anuales (leads × 12 = alcance anual)
+  const annualLeads      = leads * 12
+  const customers        = Math.round(annualLeads * (conversionRate / 100))
   const annualRevenue    = customers * avgPrice * purchasesPerYear
   const annualVarCost    = customers * avgCost  * purchasesPerYear
   const annualGrossMargin = annualRevenue - annualVarCost
@@ -200,25 +204,20 @@ export default function Calculadora() {
   const totalGrossMargin = customers * ltvMargin
   const totalNetMargin   = totalGrossMargin - fixedCosts * lifespanYears
 
-  // Breakeven
-  const breakevenRate = ltvMargin > 0
-    ? (fixedCosts / ((leads / 100) * ltvMargin / purchasesPerYear))
-    : null
-
   // Chart data
   const chartData = useMemo(() => {
     const data = []
     for (let cr = 0; cr <= 10; cr = Math.round((cr + 0.5) * 10) / 10) {
-      const c = leads * (cr / 100)
+      const c = annualLeads * (cr / 100)
       const gross = c * (avgPrice - avgCost) * purchasesPerYear
       const net   = gross - fixedCosts
       data.push({ rate: cr, gross, net })
     }
     return data
-  }, [leads, avgPrice, avgCost, purchasesPerYear, fixedCosts])
+  }, [annualLeads, avgPrice, avgCost, purchasesPerYear, fixedCosts])
 
-  const annualBEP = ltvMargin > 0 && leads > 0
-    ? (fixedCosts / ((avgPrice - avgCost) * purchasesPerYear * leads)) * 100
+  const annualBEP = ltvMargin > 0 && annualLeads > 0
+    ? (fixedCosts / ((avgPrice - avgCost) * purchasesPerYear * annualLeads)) * 100
     : null
 
   return (
@@ -363,7 +362,7 @@ export default function Calculadora() {
                 Métricas Anuales
               </div>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                <KpiCard label="Clientes / Año" value={fmtN(customers)} sub="Leads × Conversión" />
+                <KpiCard label="Clientes / Año" value={fmtN(customers)} sub={`${fmtN(annualLeads)} leads/año`} />
                 <KpiCard label="Revenue Anual" value={fmt(annualRevenue)} sub="Ingresos brutos" />
                 <KpiCard label="Margen Bruto" value={fmt(annualGrossMargin)}
                   sub={annualRevenue > 0 ? `${((annualGrossMargin/annualRevenue)*100).toFixed(0)}% del revenue` : '—'} />
