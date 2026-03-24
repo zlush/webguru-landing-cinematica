@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useRef } from 'react'
 import {
   LineChart, Line, XAxis, YAxis, CartesianGrid,
   Tooltip, ResponsiveContainer, ReferenceLine,
@@ -7,6 +7,7 @@ import {
   Users, Activity, ArrowLeft, Building2,
   Target, RotateCcw, ChevronDown, ChevronUp,
   TrendingUp, CalendarDays, Infinity as InfinityIcon,
+  BookmarkPlus, Trash2, Upload,
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 
@@ -182,6 +183,8 @@ export default function Calculadora() {
   const [avgCost, setAvgCost] = useState(60)
   const [fixedCosts, setFixedCosts] = useState(120000)
   const [empresaOpen, setEmpresaOpen] = useState(false)
+  const [scenarios, setScenarios] = useState([])
+  const scenarioCount = useRef(0)
 
   // ── Calculations ──────────────────────────────────────────────────────────
 
@@ -220,6 +223,34 @@ export default function Calculadora() {
     ? (fixedCosts / ((avgPrice - avgCost) * purchasesPerYear * annualLeads)) * 100
     : null
 
+  const saveScenario = () => {
+    scenarioCount.current += 1
+    setScenarios(prev => [...prev, {
+      id: Date.now(),
+      name: `Escenario ${scenarioCount.current}`,
+      // inputs
+      leads, conversionRate, purchasesPerYear, lifespanYears, avgPrice, avgCost, fixedCosts,
+      // outputs
+      customers, annualRevenue, annualGrossMargin, annualNetMargin,
+      ltvMargin, totalNetMargin,
+      annualBEP,
+    }])
+  }
+
+  const loadScenario = (s) => {
+    setLeads(s.leads)
+    setConversionRate(s.conversionRate)
+    setPurchasesPerYear(s.purchasesPerYear)
+    setLifespanYears(s.lifespanYears)
+    setAvgPrice(s.avgPrice)
+    setAvgCost(s.avgCost)
+    setFixedCosts(s.fixedCosts)
+  }
+
+  const bestId = scenarios.length > 0
+    ? scenarios.reduce((best, s) => s.annualNetMargin > best.annualNetMargin ? s : best).id
+    : null
+
   return (
     <div className="min-h-screen bg-[#0A0A14] text-white font-sans selection:bg-purple-500/30">
 
@@ -241,13 +272,25 @@ export default function Calculadora() {
       <div className="max-w-7xl mx-auto p-5 md:p-8">
 
         {/* ── Hero title ── */}
-        <div className="mb-8">
-          <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight mb-1">
-            Calculadora de Rentabilidad
-          </h1>
-          <p className="text-sm text-gray-500 max-w-xl">
-            Modela el impacto de alcance, conversión y retención en el LTV y el margen neto de tu negocio.
-          </p>
+        <div className="mb-8 flex items-start justify-between gap-4">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold text-white tracking-tight mb-1">
+              Calculadora de Rentabilidad
+            </h1>
+            <p className="text-sm text-gray-500 max-w-xl">
+              Modela el impacto de alcance, conversión y retención en el LTV y el margen neto de tu negocio.
+            </p>
+          </div>
+          <button
+            onClick={saveScenario}
+            className="flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl
+                       bg-purple-600/20 border border-purple-500/30 text-purple-300
+                       hover:bg-purple-600/35 hover:border-purple-400/50 hover:text-white
+                       transition-all text-xs font-semibold"
+          >
+            <BookmarkPlus className="w-3.5 h-3.5" />
+            Guardar escenario
+          </button>
         </div>
 
         <div className="grid grid-cols-1 xl:grid-cols-12 gap-6">
@@ -468,6 +511,91 @@ export default function Calculadora() {
 
           </div>
         </div>
+
+        {/* ── Comparación de escenarios ── */}
+        {scenarios.length > 0 && (
+          <div className="mt-8">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-gray-500">
+                <BookmarkPlus className="w-3 h-3" />
+                Comparación de Escenarios
+                <span className="text-purple-400">({scenarios.length})</span>
+              </div>
+              <button
+                onClick={() => setScenarios([])}
+                className="text-[10px] text-gray-600 hover:text-red-400 transition-colors uppercase tracking-widest"
+              >
+                Limpiar todo
+              </button>
+            </div>
+
+            <div className="overflow-x-auto rounded-2xl border border-white/8">
+              <table className="w-full text-xs min-w-[900px]">
+                <thead>
+                  <tr className="border-b border-white/8 bg-[#0f0f1a]">
+                    {['Escenario','Leads/mes','Conv.','Clientes/año','Revenue Anual','Margen Bruto','Margen Neto','LTV Margen','Total Neto','BEP',''].map((h, i) => (
+                      <th key={i} className="px-4 py-3 text-left text-[10px] font-bold uppercase tracking-widest text-gray-600 whitespace-nowrap">
+                        {h}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {scenarios.map((s) => {
+                    const isBest = s.id === bestId && scenarios.length > 1
+                    return (
+                      <tr key={s.id}
+                        className={`border-b border-white/5 last:border-0 transition-colors
+                          ${isBest ? 'bg-purple-900/10' : 'bg-[#141420] hover:bg-white/2'}`}>
+                        <td className="px-4 py-3 font-semibold text-white whitespace-nowrap">
+                          {isBest && <span className="mr-1.5 text-purple-400">★</span>}
+                          {s.name}
+                        </td>
+                        <td className="px-4 py-3 tabular-nums text-gray-300">{fmtN(s.leads)}</td>
+                        <td className="px-4 py-3 tabular-nums text-gray-300">{s.conversionRate}%</td>
+                        <td className="px-4 py-3 tabular-nums text-gray-300">{fmtN(s.customers)}</td>
+                        <td className="px-4 py-3 tabular-nums text-gray-200">{fmt(s.annualRevenue)}</td>
+                        <td className="px-4 py-3 tabular-nums text-blue-300">{fmt(s.annualGrossMargin)}</td>
+                        <td className={`px-4 py-3 tabular-nums font-bold ${s.annualNetMargin >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+                          {fmt(s.annualNetMargin)}
+                        </td>
+                        <td className="px-4 py-3 tabular-nums text-purple-300">{fmt(s.ltvMargin)}</td>
+                        <td className={`px-4 py-3 tabular-nums ${s.totalNetMargin >= 0 ? 'text-emerald-300/70' : 'text-red-300/70'}`}>
+                          {fmt(s.totalNetMargin)}
+                        </td>
+                        <td className="px-4 py-3 tabular-nums text-amber-400">
+                          {s.annualBEP !== null ? `${s.annualBEP.toFixed(2)}%` : '—'}
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-1">
+                            <button
+                              onClick={() => loadScenario(s)}
+                              title="Cargar escenario"
+                              className="p-1.5 rounded-lg text-gray-600 hover:text-purple-400 hover:bg-white/5 transition-colors"
+                            >
+                              <Upload className="w-3 h-3" />
+                            </button>
+                            <button
+                              onClick={() => setScenarios(prev => prev.filter(x => x.id !== s.id))}
+                              title="Eliminar"
+                              className="p-1.5 rounded-lg text-gray-600 hover:text-red-400 hover:bg-white/5 transition-colors"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+            <p className="text-[10px] text-gray-700 mt-2">
+              ★ Mejor margen neto anual · <Upload className="w-2.5 h-2.5 inline" /> Cargar inputs · <Trash2 className="w-2.5 h-2.5 inline" /> Eliminar fila
+            </p>
+          </div>
+        )}
+
       </div>
     </div>
   )
