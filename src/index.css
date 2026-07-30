@@ -70,6 +70,14 @@ body::after {
   backdrop-filter: blur(16px);
 }
 
+/* El menú móvil abierto no puede depender de backdrop-filter: varios
+   navegadores Android lo ignoran, y entonces el 0.55 de .card-surface deja
+   leer el artículo que queda detrás del panel. Va después de .card-surface a
+   propósito — misma especificidad, gana por orden. */
+.nav-open {
+  background: rgba(13,19,32,0.98);
+}
+
 /* ── Section label ── */
 .section-label {
   font-family: 'JetBrains Mono', monospace;
