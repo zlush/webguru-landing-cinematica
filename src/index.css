@@ -79,6 +79,54 @@ body::after {
   color: #0693E3;
 }
 
+/* ── Prosa para páginas de texto (legales, sobre nosotros) ──
+   El plugin @tailwindcss/typography no está instalado, así que los estilos
+   base van acá. Line-height 1.7 y ~70ch de ancho para lectura cómoda. */
+.wg-prose { color: #B4C4DC; font-size: 1rem; line-height: 1.75; }
+.wg-prose > * + * { margin-top: 1.25rem; }
+.wg-prose h2 {
+  color: #F4F6FA;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  font-size: 1.375rem;
+  line-height: 1.25;
+  margin-top: 3rem;
+}
+.wg-prose h3 {
+  color: #F4F6FA;
+  font-weight: 700;
+  font-size: 1.0625rem;
+  margin-top: 2rem;
+}
+.wg-prose a {
+  color: #0693E3;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.wg-prose a:hover { color: #9B51E0; }
+.wg-prose strong { color: #F4F6FA; font-weight: 700; }
+.wg-prose ul, .wg-prose ol { padding-left: 1.35rem; }
+.wg-prose ul { list-style: disc; }
+.wg-prose ol { list-style: decimal; }
+.wg-prose li + li { margin-top: 0.5rem; }
+.wg-prose li::marker { color: #0693E3; }
+.wg-prose table { width: 100%; border-collapse: collapse; font-size: 0.9375rem; }
+.wg-prose th, .wg-prose td {
+  text-align: left;
+  padding: 0.7rem 0.9rem;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  vertical-align: top;
+}
+.wg-prose th { color: #F4F6FA; font-weight: 700; }
+/* Wide tables scroll inside their own box instead of the page. */
+.wg-prose .table-wrap { overflow-x: auto; }
+.wg-prose .note {
+  border-left: 2px solid #0693E3;
+  background: rgba(6,147,227,0.06);
+  padding: 1rem 1.25rem;
+  border-radius: 0 0.75rem 0.75rem 0;
+}
+
 /* ── Scrollbar ── */
 ::-webkit-scrollbar { width: 4px; }
 ::-webkit-scrollbar-track { background: #060910; }

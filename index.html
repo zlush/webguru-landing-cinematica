@@ -5,28 +5,35 @@
   <meta charset="UTF-8" />
   <link rel="icon" type="image/svg+xml" href="/vite.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0A0E1A" />
 
   <!-- Primary Meta Tags -->
-  <title>WebGuru — CRM + IA + Automatizaciones para crecer sin esfuerzo</title>
-  <meta name="title" content="WebGuru — CRM + IA + Automatizaciones para crecer sin esfuerzo" />
+  <title>WebGuru — CRM omnicanal, IA y automatizaciones para negocios de servicios</title>
   <meta name="description"
-    content="WebGuru reúne CRM omnicanal, automatizaciones avanzadas y asistentes virtuales con IA. Vende más, atiende 24/7 y reduce ausencias. 35+ clientes en 9 países." />
+    content="CRM con WhatsApp, Instagram y correo en una bandeja, asistente IA 24/7 y recordatorios que reducen las ausencias hasta 40%. 35+ clientes en 9 países. Demo gratis de 30 min." />
+  <link rel="canonical" href="https://webguru.cl/" />
+  <meta name="robots" content="index, follow, max-image-preview:large" />
 
   <!-- Open Graph / Facebook -->
   <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="WebGuru" />
+  <meta property="og:locale" content="es_CL" />
   <meta property="og:url" content="https://webguru.cl/" />
-  <meta property="og:title" content="WebGuru — CRM + IA + Automatizaciones para crecer sin esfuerzo" />
+  <meta property="og:title" content="WebGuru — CRM omnicanal, IA y automatizaciones para negocios de servicios" />
   <meta property="og:description"
-    content="WebGuru reúne CRM omnicanal, automatizaciones avanzadas y asistentes virtuales con IA. Vende más, atiende 24/7 y reduce ausencias. 35+ clientes en 9 países." />
-  <meta property="og:image" content="https://webguru.cl/og-image.jpg" />
+    content="CRM con WhatsApp, Instagram y correo en una bandeja, asistente IA 24/7 y recordatorios que reducen las ausencias hasta 40%. Demo gratis de 30 min." />
+  <meta property="og:image" content="https://webguru.cl/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt" content="WebGuru — Vende más con menos esfuerzo" />
 
   <!-- Twitter -->
   <meta property="twitter:card" content="summary_large_image" />
   <meta property="twitter:url" content="https://webguru.cl/" />
-  <meta property="twitter:title" content="WebGuru — CRM + IA + Automatizaciones para crecer sin esfuerzo" />
+  <meta property="twitter:title" content="WebGuru — CRM omnicanal, IA y automatizaciones para negocios de servicios" />
   <meta property="twitter:description"
-    content="WebGuru reúne CRM omnicanal, automatizaciones avanzadas y asistentes virtuales con IA. Vende más, atiende 24/7 y reduce ausencias. 35+ clientes en 9 países." />
-  <meta property="twitter:image" content="https://webguru.cl/og-image.jpg" />
+    content="CRM con WhatsApp, Instagram y correo en una bandeja, asistente IA 24/7 y recordatorios que reducen las ausencias hasta 40%. Demo gratis de 30 min." />
+  <meta property="twitter:image" content="https://webguru.cl/og-image.png" />
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -34,34 +41,57 @@
     href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Cormorant+Garamond:ital,wght@1,400;1,600;1,700&family=JetBrains+Mono:wght@400;500&display=swap"
     rel="stylesheet" />
 
-  <!-- Schema Markup (JSON-LD) para Inteligencia Artificial y Google -->
+  <!-- Schema Markup (JSON-LD) para Google y motores de IA.
+       Deliberadamente NO se declara aggregateRating ni un precio: no hay reseñas
+       verificables ni tarifas publicadas, e inventarlas expone el sitio a una
+       acción manual de Google. El FAQPage se inyecta desde App.jsx. -->
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "SoftwareApplication",
+      "@type": "ProfessionalService",
+      "@id": "https://webguru.cl/#organization",
       "name": "WebGuru",
-      "url": "https://webguru.cl",
+      "url": "https://webguru.cl/",
       "logo": "https://webguru.cl/webguru-logo-dark.webp",
-      "description": "WebGuru provee un CRM omnicanal integrado con Inteligencia Artificial, automatizaciones avanzadas de WhatsApp y agendamiento inteligente para incrementar ventas y reducir inasistencias en negocios de servicios y clínicas.",
-      "applicationCategory": "BusinessApplication",
-      "operatingSystem": "All",
-      "offers": {
-        "@type": "Offer",
-        "price": "0",
-        "priceCurrency": "USD"
+      "image": "https://webguru.cl/og-image.png",
+      "description": "WebGuru implementa CRM omnicanal con Inteligencia Artificial, automatizaciones de WhatsApp y agendamiento inteligente para incrementar ventas y reducir inasistencias en negocios de servicios y clínicas.",
+      "slogan": "Vende más con menos esfuerzo",
+      "email": "contacto@webguru.cl",
+      "telephone": "+56945613260",
+      "priceRange": "$$",
+      "address": {
+        "@type": "PostalAddress",
+        "streetAddress": "Av. Manquehue Sur 555",
+        "addressLocality": "Las Condes",
+        "addressRegion": "Región Metropolitana",
+        "addressCountry": "CL"
       },
-      "provider": {
-        "@type": "Organization",
-        "name": "WebGuru",
-        "url": "https://webguru.cl",
-        "contactPoint": {
-          "@type": "ContactPoint",
-          "telephone": "+56945613260",
-          "contactType": "customer service",
-          "email": "contacto@webguru.cl",
-          "areaServed": "Global",
-          "availableLanguage": "Spanish"
-        }
+      "areaServed": [
+        { "@type": "Country", "name": "Chile" },
+        { "@type": "Country", "name": "Argentina" },
+        { "@type": "Country", "name": "México" },
+        { "@type": "Country", "name": "Colombia" },
+        { "@type": "Country", "name": "Perú" },
+        { "@type": "Country", "name": "España" }
+      ],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "telephone": "+56945613260",
+        "contactType": "sales",
+        "email": "contacto@webguru.cl",
+        "availableLanguage": ["Spanish"]
+      },
+      "hasOfferCatalog": {
+        "@type": "OfferCatalog",
+        "name": "Servicios WebGuru",
+        "itemListElement": [
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "CRM Omnicanal", "description": "WhatsApp, Instagram, Facebook y correo en una sola bandeja de entrada." } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Asistente IA 24/7", "description": "Responde, califica y agenda automáticamente sin intervención humana." } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Anti No-Show", "description": "Recordatorios inteligentes por WhatsApp, SMS y email que reducen ausencias hasta 40%." } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Sitios Web y Landing Pages", "description": "Sitios y landings orientados a conversión." } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Automatizaciones", "description": "Flujos personalizados de marketing y ventas." } },
+          { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Lead Generation", "description": "Prospección B2B y directa de clientes calificados." } }
+        ]
       }
     }
   </script>

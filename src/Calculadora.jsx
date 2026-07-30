@@ -10,6 +10,7 @@ import {
   BookmarkPlus, Trash2, Upload,
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import { useSeo } from './hooks/useSeo'
 
 // ── Formatters ──────────────────────────────────────────────────────────────
 const fmt = (v) =>
@@ -168,6 +169,15 @@ function BarRow({ label, value, max, color, fmt: f = fmt, negative = false, bold
 // ── Main ────────────────────────────────────────────────────────────────────
 
 export default function Calculadora() {
+  // Without its own tags this route inherited the homepage's canonical, telling
+  // Google that /calculadora *is* the homepage.
+  useSeo({
+    title: 'Calculadora de Rentabilidad | WebGuru',
+    description:
+      'Simula el impacto de mejorar tu tasa de conversión, tu ticket promedio y tus ausencias. Calcula ingresos, margen y LTV con escenarios comparables.',
+    path: '/calculadora',
+  })
+
   // Alcance
   const [leads, setLeads] = useState(1000)
 
