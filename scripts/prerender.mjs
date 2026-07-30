@@ -46,6 +46,17 @@ const ROUTES = [
   '/blog/que-es-un-crm',
   '/blog/automatizar-whatsapp-business-agendar-citas',
   '/blog/glosario-marketing-digital',
+  '/blog/estrategias-de-marketing-digital-para-pymes',
+  '/blog/tipos-de-anuncios-publicitarios',
+  '/blog/que-es-el-engagement',
+  '/blog/que-es-la-segmentacion-de-clientes',
+  '/blog/que-es-un-copywriter',
+  '/blog/que-es-un-webinar',
+  '/blog/que-es-la-planeacion-estrategica',
+  '/blog/como-hacer-un-estudio-de-mercado',
+  '/blog/como-hacer-una-encuesta-en-whatsapp',
+  '/blog/mensaje-cerrado-por-vacaciones-whatsapp-business',
+  '/blog/como-crear-un-pie-de-firma-profesional',
 ]
 
 const MIME = {
