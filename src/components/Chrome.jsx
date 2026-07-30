@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { ChevronRight, Menu, X, MapPin, Phone, Mail, Globe } from 'lucide-react'
-import { CONTACT, waHref, NAV_LINKS } from '../lib/site'
+import { CONTACT, waHref, NAV_LINKS, NAV_ROUTES } from '../lib/site'
 
 /* Shared site chrome: navbar, footer and the floating WhatsApp button.
    Lives outside App.jsx so the standalone pages can reuse it without pulling
@@ -40,9 +40,12 @@ export function Navbar() {
         </Link>
 
         {/* Desktop Links */}
-        <div className="hidden md:flex items-center gap-8">
+        <div className="hidden md:flex items-center gap-6 lg:gap-7">
           {NAV_LINKS.map(([l, id]) => (
             <a key={l} href={anchor(id)} className="text-sm font-medium text-white/80 hover:text-white transition-colors">{l}</a>
+          ))}
+          {NAV_ROUTES.map(([l, to]) => (
+            <Link key={l} to={to} className="text-sm font-medium text-white/80 hover:text-white transition-colors">{l}</Link>
           ))}
         </div>
 
@@ -72,6 +75,9 @@ export function Navbar() {
           {NAV_LINKS.map(([l, id]) => (
             <a key={l} href={anchor(id)} onClick={() => setMenuOpen(false)} className="text-base font-medium text-white/80 hover:text-white transition-colors py-1">{l}</a>
           ))}
+          {NAV_ROUTES.map(([l, to]) => (
+            <Link key={l} to={to} onClick={() => setMenuOpen(false)} className="text-base font-medium text-white/80 hover:text-white transition-colors py-1">{l}</Link>
+          ))}
           <div className="flex flex-col gap-3 mt-4">
             <a href={anchor('precios')} onClick={() => setMenuOpen(false)} className="btn btn-outline text-sm py-3 justify-center">Ver planes</a>
             <a href={waHref('Quiero saber más de WebGuru')} target="_blank" rel="noopener noreferrer"
@@ -100,7 +106,7 @@ export function Footer() {
     ['Anti No-Show', anchor('features')],
     ['Sitios Web & Landings', anchor('features')],
     ['Automatizaciones', anchor('features')],
-    ['Lead Generation', anchor('features')],
+    ['Calculadora de rentabilidad', '/calculadora'],
   ]
   const empresa = [
     ['Casos de éxito', anchor('testimonios')],

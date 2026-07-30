@@ -20,3 +20,11 @@ export const NAV_LINKS = [
   ['Precios', 'precios'],
   ['Contacto', 'contacto'],
 ]
+
+/* Rutas propias del menú (no son anclas de la home). La calculadora era una
+   página huérfana: sin un solo enlace entrante, Google la rastrea mal y ningún
+   visitante la encuentra. */
+export const NAV_ROUTES = [
+  ['Blog', '/blog'],
+  ['Calculadora', '/calculadora'],
+]

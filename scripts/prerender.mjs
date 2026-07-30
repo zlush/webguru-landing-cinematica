@@ -92,6 +92,13 @@ function serveDist(shell) {
 
 /* ── PHASE 1: capture ── */
 async function capture(shell) {
+  // PRERENDER_SKIP_CAPTURE=1 reproduce el entorno de Vercel en local: solo se
+  // aplican los snapshots versionados, sin abrir ningún navegador.
+  if (process.env.PRERENDER_SKIP_CAPTURE === '1') {
+    note('PRERENDER_SKIP_CAPTURE=1 — captura omitida a propósito')
+    return false
+  }
+
   let chromium
   try { ({ chromium } = await import('playwright')) }
   catch { note('playwright no instalado — se omite la captura'); return false }
@@ -110,12 +117,35 @@ async function capture(shell) {
     try {
       await page.goto(`http://localhost:${PORT}${route}`, { waitUntil: 'load', timeout: 60000 })
       await page.waitForFunction(() => document.querySelector('#root')?.children.length > 0, { timeout: 30000 })
+
+      // Scroll the whole page so every ScrollTrigger fires. Without this, the
+      // below-the-fold sections are captured in their gsap.from() start state
+      // and the static HTML ships with style="opacity: 0" on real content — text
+      // a rendering crawler would treat as hidden.
+      await page.evaluate(async () => {
+        for (let y = 0; y < document.body.scrollHeight; y += 500) {
+          window.scrollTo(0, y)
+          await new Promise(r => setTimeout(r, 60))
+        }
+        window.scrollTo(0, 0)
+      })
       await page.waitForTimeout(2500)
 
       const snap = await page.evaluate(() => {
         // Spline paints into a <canvas>; pixels cannot be serialised and the
         // element only bloats the snapshot. The live app recreates it on mount.
         document.querySelectorAll('canvas').forEach(c => c.remove())
+
+        // Belt and braces: clear any animation leftovers so nothing ends up
+        // invisible or displaced in the static markup.
+        document.querySelectorAll('#root [style]').forEach(el => {
+          const o = el.style.opacity
+          if (o !== '' && Number(o) < 1) el.style.opacity = ''
+          if (el.style.transform) el.style.transform = ''
+          if (el.style.translate) el.style.translate = ''
+          if (el.style.visibility === 'hidden') el.style.visibility = ''
+        })
+
         const head = document.head
         const pick = sel => [...head.querySelectorAll(sel)].map(e => e.outerHTML)
         return {

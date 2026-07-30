@@ -11,6 +11,7 @@ import {
 } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useSeo } from './hooks/useSeo'
+import { waHref } from './lib/site'
 
 // ── Formatters ──────────────────────────────────────────────────────────────
 const fmt = (v) =>
@@ -182,7 +183,11 @@ export default function Calculadora() {
   const [leads, setLeads] = useState(1000)
 
   // Conversión
-  const [conversionRate, setConversionRate] = useState(2.5)
+  // 3,5% queda por encima del punto de equilibrio con los costos fijos por
+  // defecto. Antes arrancaba en 2,5% con 120.000 de costos fijos, y lo primero
+  // que veía el visitante era un margen neto de −39.000 en rojo: un mal punto de
+  // partida para una herramienta que debería invitar a explorar.
+  const [conversionRate, setConversionRate] = useState(3.5)
 
   // Retención
   const [purchasesPerYear, setPurchasesPerYear] = useState(3)
@@ -191,7 +196,7 @@ export default function Calculadora() {
   // Empresa
   const [avgPrice, setAvgPrice] = useState(150)
   const [avgCost, setAvgCost] = useState(60)
-  const [fixedCosts, setFixedCosts] = useState(120000)
+  const [fixedCosts, setFixedCosts] = useState(60000)
   const [empresaOpen, setEmpresaOpen] = useState(false)
   const [scenarios, setScenarios] = useState([])
   const scenarioCount = useRef(0)
@@ -605,6 +610,39 @@ export default function Calculadora() {
             </p>
           </div>
         )}
+
+        {/* ── CTA ──
+            Quien acaba de modelar su propia rentabilidad es el contacto más
+            caliente que puede tener el sitio; antes de esto la página no ofrecía
+            ninguna acción más que volver al inicio. */}
+        <div className="mt-10 rounded-3xl p-8 text-center"
+          style={{
+            background: 'rgba(30,42,58,0.55)',
+            border: '1px solid rgba(6,147,227,0.18)',
+            backdropFilter: 'blur(16px)',
+          }}>
+          <h2 className="text-xl md:text-2xl font-bold text-white tracking-tight mb-3">
+            ¿Y si la tasa de conversión no fuera el techo?
+          </h2>
+          <p className="text-sm text-gray-400 leading-relaxed max-w-xl mx-auto mb-7">
+            Mové la tasa de conversión unos puntos y mirá lo que pasa con el margen.
+            Eso es exactamente donde trabaja WebGuru: responder más rápido, hacer el
+            seguimiento solo y que el cliente agendado efectivamente llegue.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <Link to="/#contacto"
+              className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full font-bold text-sm text-white transition-transform hover:scale-[1.03]"
+              style={{ background: 'linear-gradient(135deg, #0693E3 0%, #9B51E0 100%)' }}>
+              Agenda tu demo gratis
+            </Link>
+            <a href={waHref('Hola, estuve usando la calculadora y quiero conversar')}
+              target="_blank" rel="noopener noreferrer"
+              className="inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full font-bold text-sm text-white/90 border transition-colors hover:text-white"
+              style={{ borderColor: 'rgba(6,147,227,0.35)' }}>
+              Escríbenos por WhatsApp
+            </a>
+          </div>
+        </div>
 
       </div>
     </div>

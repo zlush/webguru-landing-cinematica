@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, useId, lazy, Suspense } from 'react'
+import { useEffect, useRef, useState, useId } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { Link } from 'react-router-dom'
@@ -13,9 +13,11 @@ import {
   Menu, X, ChevronDown, Plus, Minus,
   Target, Mic
 } from 'lucide-react'
-// The Spline runtime is several MB. Statically imported it lands in the main
-// bundle and everything else on the page waits behind it.
-const Spline = lazy(() => import('@splinetool/react-spline'))
+/* Spline se quitó del hero. Aportaba ~2 MB de JS (más un chunk de física de
+   ~2 MB) para renderizar unos puntos apenas perceptibles, y era la causa medida
+   del LCP de 4.572 ms en móvil. Los paquetes @splinetool siguen instalados por
+   si se quiere reutilizar en otra sección; al no importarlos, Vite ya no genera
+   sus chunks. Se pueden desinstalar sin tocar más código. */
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -30,80 +32,179 @@ const PREFERS_REDUCED_MOTION =
 
 /* ──────────────────────────────────────────
    HERO
+   Antes traía una escena de Spline: ~2 MB de JS que renderizaba unos puntos
+   apenas visibles y dejaba dos tercios de la pantalla vacíos. Medido en móvil
+   (4G, CPU x4) daba LCP 4.572 ms, y el elemento LCP era un párrafo de texto —
+   o sea, el texto tardaba porque el hilo principal estaba ocupado ejecutando
+   ese JS, no porque el hero fuera visualmente pesado.
+   Lo reemplaza un mockup del producto hecho con DOM y CSS: peso adicional
+   cero, y además muestra lo que se vende.
 ────────────────────────────────────────── */
-function Hero() {
-  const ref = useRef(null)
+
+const INBOX_MESSAGES = [
+  { channel: 'WhatsApp', who: 'Camila Rojas', text: '¿Tienen hora disponible el martes?', time: '10:31', color: '#25D366', Icon: MessageSquare },
+  { channel: 'Instagram', who: '@estudio.lm', text: 'Hola! Me interesan los precios', time: '10:33', color: '#E1306C', Icon: Instagram },
+  { channel: 'Email', who: 'javier@empresa.cl', text: 'Cotización para 12 personas', time: '10:35', color: '#0693E3', Icon: Mail },
+  { channel: 'Facebook', who: 'Marcela Díaz', text: '¿Atienden los sábados?', time: '10:38', color: '#1877F2', Icon: Facebook },
+  { channel: 'WhatsApp', who: 'Ignacio Soto', text: 'Confirmo mi hora, gracias', time: '10:41', color: '#25D366', Icon: MessageSquare },
+]
+
+function HeroInbox() {
+  const [head, setHead] = useState(0)
 
   useEffect(() => {
     if (PREFERS_REDUCED_MOTION) return
-    const ctx = gsap.context(() => {
-      gsap.from('[data-hero]', {
-        y: 50, opacity: 0, duration: 1.1,
-        ease: 'power3.out', stagger: 0.1, delay: 0.2,
-      })
-    }, ref)
-    return () => ctx.revert()
+    const id = setInterval(() => setHead(h => (h + 1) % INBOX_MESSAGES.length), 3200)
+    return () => clearInterval(id)
   }, [])
 
+  // Three visible rows, rotating. Same "shuffler" idea used in the Features
+  // cards, so the hero speaks the same visual language as the rest of the page.
+  const visible = [0, 1, 2].map(i => INBOX_MESSAGES[(head + i) % INBOX_MESSAGES.length])
+
   return (
-    <section ref={ref} className="relative h-screen flex flex-col justify-end overflow-hidden">
-      {/* Background with Spline 3D */}
-      <div className="absolute inset-0 z-0 bg-[#060910] overflow-hidden">
-        <div className="absolute inset-0 z-0">
-          {/* Falls back to the section's flat background until the runtime lands. */}
-          <Suspense fallback={null}>
-            <Spline style={{ width: '100%', height: '100%', pointerEvents: 'auto' }} scene="https://prod.spline.design/IC8nRhZUIr6HQveG/scene.splinecode" />
-          </Suspense>
+    <div className="relative w-full" aria-hidden="true">
+      {/* Brand glow behind the card */}
+      <div className="absolute -inset-8 pointer-events-none" style={{
+        background: 'radial-gradient(ellipse 60% 55% at 55% 45%, rgba(123,97,255,0.18), transparent 70%)',
+        filter: 'blur(10px)',
+      }} />
+
+      <div className="relative card-surface rounded-4xl p-5 lg:p-6 shadow-2xl shadow-black/40">
+        {/* Card header */}
+        <div className="flex items-center justify-between mb-5">
+          <div>
+            <span className="section-label" style={{ fontSize: '0.62rem' }}>Bandeja unificada</span>
+            <p className="font-sans font-bold text-sm mt-1">Todos tus canales, un inbox</p>
+          </div>
+          <div className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wider text-emerald-400">
+            <span className="relative grid place-items-center w-2 h-2">
+              <span className="absolute inset-0 rounded-full bg-emerald-400 ping-slow" />
+              <span className="relative w-2 h-2 rounded-full bg-emerald-400" />
+            </span>
+            Live
+          </div>
         </div>
 
-        {/* Dark overlays to ensure text legibility over the 3D model */}
-        {/* Left-side dark fade */}
-        <div className="absolute inset-0 z-10 pointer-events-none" style={{ background: 'linear-gradient(to right, #060910 0%, rgba(6,9,16,0.6) 20%, transparent 60%)' }} />
-        {/* Bottom dark fade */}
-        <div className="absolute inset-0 z-10 pointer-events-none" style={{ background: 'linear-gradient(to top, #060910 0%, rgba(6,9,16,0.85) 15%, transparent 50%)' }} />
-        {/* Top edge subtle fade */}
-        <div className="absolute inset-x-0 top-0 h-32 z-10 pointer-events-none" style={{ background: 'linear-gradient(to bottom, rgba(6,9,16,0.9) 0%, transparent 100%)' }} />
-      </div>
-
-      {/* Content locked to bottom-left */}
-      <div className="relative z-20 w-full max-w-5xl mx-auto px-6 md:px-12 pb-14 md:pb-18 pointer-events-none">
-
-        {/* The text container will ignore pointer events, but its INTERACTIVE children (buttons/links) will receive them */}
-        <div data-hero className="mb-4">
-          <span className="section-label">CRM · IA · Automatizaciones · 14 años de experiencia</span>
-        </div>
-
-        <h1 className="mb-5">
-          <span data-hero className="block font-sans font-extrabold text-5xl md:text-6xl lg:text-[5rem] tracking-tight text-white leading-[1.02]">
-            Vende más
-          </span>
-          <span data-hero className="block font-serif italic font-semibold text-5xl md:text-7xl lg:text-[5.5rem] leading-[1.05] wg-gradient-text">
-            con menos esfuerzo.
-          </span>
-        </h1>
-
-        <p data-hero className="text-base md:text-lg text-wg-muted max-w-lg leading-relaxed mb-8">
-          WebGuru reúne CRM, automatizaciones y asistentes IA en una sola plataforma.
-          Capta, nutre y cierra más clientes — sin hojas de cálculo, sin procesos manuales.
-        </p>
-
-        <div data-hero className="flex flex-wrap gap-4 mb-8 pointer-events-auto">
-          <a href="#contacto" className="btn btn-primary text-base px-8 py-4">
-            Agenda tu demo gratis <ArrowUpRight size={16} />
-          </a>
-          <a href="#plataforma" className="btn btn-outline text-base px-8 py-4">
-            Ver la plataforma
-          </a>
-        </div>
-
-        {/* Inline stat chips — left side */}
-        <div data-hero className="flex flex-wrap items-center gap-3">
-          {[['35+', 'Clientes activos'], ['9', 'Países'], ['35%', 'Más leads calificados']].map(([stat, label]) => (
-            <div key={stat} className="card-surface rounded-2xl px-4 py-2">
-              <span className="font-mono text-sm font-bold wg-gradient-text mr-1.5">{stat}</span>
-              <span className="text-xs text-wg-muted">{label}</span>
+        {/* Rotating message rows */}
+        <div className="flex flex-col gap-2.5" style={{ minHeight: 222 }}>
+          {visible.map((m, i) => (
+            <div
+              key={`${m.who}-${m.time}`}
+              className="wg-msg flex items-start gap-3 rounded-2xl px-3.5 py-3"
+              style={{
+                background: i === 0 ? 'rgba(30,42,58,0.75)' : 'rgba(18,24,38,0.5)',
+                border: `1px solid ${i === 0 ? 'rgba(123,97,255,0.35)' : 'rgba(255,255,255,0.06)'}`,
+                opacity: 1 - i * 0.22,
+              }}
+            >
+              <span className="grid place-items-center rounded-xl flex-shrink-0"
+                style={{ width: 32, height: 32, background: `${m.color}1F` }}>
+                <m.Icon size={15} style={{ color: m.color }} />
+              </span>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-baseline justify-between gap-2">
+                  <span className="font-sans font-bold text-xs truncate">{m.who}</span>
+                  <span className="font-mono text-[10px] text-wg-muted flex-shrink-0">{m.time}</span>
+                </div>
+                <p className="text-xs text-wg-muted truncate mt-0.5">{m.text}</p>
+              </div>
             </div>
           ))}
+        </div>
+
+        {/* AI footer */}
+        <div className="flex items-center gap-2.5 mt-5 pt-4" style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}>
+          <span className="grid place-items-center rounded-xl flex-shrink-0"
+            style={{ width: 30, height: 30, background: 'rgba(123,97,255,0.16)' }}>
+            <Bot size={15} className="text-wg-purple" />
+          </span>
+          <p className="text-xs text-wg-muted leading-snug">
+            <span className="text-white/90 font-semibold">Asistente IA</span> respondió en 4s
+            y agendó <span className="wg-gradient-text font-bold">2 citas</span>
+          </p>
+        </div>
+      </div>
+
+      {/* The Guru, presenting the card. Sits clear of the card's corner —
+          overlapping it clipped his laptop and looked like a mistake. */}
+      <img
+        src="/guru-cartoon.webp"
+        alt=""
+        width="200" height="200"
+        className="absolute float pointer-events-none select-none hidden lg:block"
+        style={{ width: 158, height: 'auto', right: -52, bottom: -84, filter: 'drop-shadow(0 12px 34px rgba(109,27,208,0.45))' }}
+      />
+    </div>
+  )
+}
+
+/* El hero NO se anima al entrar, a propósito.
+   gsap.from() ponía este contenido en opacity 0 al montar React y lo revelaba
+   ~1,3 s después. Como el HTML ya viene prerenderizado, el texto se pintaba de
+   inmediato, desaparecía y volvía: el LCP se medía en la reaparición y llegaba a
+   10,4 s con la CPU estrangulada. Animar lo que está sobre el pliegue es la forma
+   más rápida de arruinar el LCP. Las revelaciones por scroll del resto de la
+   página no afectan esta métrica y siguen intactas. */
+function Hero() {
+  return (
+    <section className="relative min-h-screen flex items-end md:items-center overflow-hidden">
+      {/* Background: pure CSS, nothing to download */}
+      <div className="absolute inset-0 z-0 bg-[#060910]">
+        <div className="absolute inset-0" style={{
+          background: 'radial-gradient(ellipse 70% 60% at 75% 40%, rgba(6,147,227,0.10), transparent 65%), radial-gradient(ellipse 55% 50% at 88% 70%, rgba(155,81,224,0.12), transparent 70%)',
+        }} />
+        <div className="absolute inset-x-0 bottom-0 h-40 pointer-events-none"
+          style={{ background: 'linear-gradient(to top, #0A0E1A 0%, transparent 100%)' }} />
+      </div>
+
+      {/* 1.15fr para la columna de texto: con 1.05 el titular rompía en tres
+          líneas en 1440px y perdía fuerza. */}
+      <div className="relative z-20 w-full max-w-6xl mx-auto px-6 md:px-12 pt-32 pb-14 md:py-28
+                      grid grid-cols-1 md:grid-cols-[1.15fr_0.85fr] gap-10 lg:gap-14 items-center">
+
+        {/* ── Columna de texto ── */}
+        <div>
+          <div className="mb-4">
+            <span className="section-label">CRM · IA · Automatizaciones · 14 años de experiencia</span>
+          </div>
+
+          <h1 className="mb-5">
+            <span className="block font-sans font-extrabold text-5xl md:text-5xl lg:text-[4.25rem] tracking-tight text-white leading-[1.02]">
+              Vende más
+            </span>
+            <span className="block font-serif italic font-semibold text-5xl md:text-[3.4rem] lg:text-[4.5rem] leading-[1.05] wg-gradient-text whitespace-nowrap">
+              con menos esfuerzo.
+            </span>
+          </h1>
+
+          <p className="text-base md:text-lg text-wg-muted max-w-lg leading-relaxed mb-8">
+            WebGuru reúne CRM, automatizaciones y asistentes IA en una sola plataforma.
+            Capta, nutre y cierra más clientes — sin hojas de cálculo, sin procesos manuales.
+          </p>
+
+          <div className="flex flex-wrap gap-4 mb-8">
+            <a href="#contacto" className="btn btn-primary text-base px-8 py-4">
+              Agenda tu demo gratis <ArrowUpRight size={16} />
+            </a>
+            <a href="#plataforma" className="btn btn-outline text-base px-8 py-4">
+              Ver la plataforma
+            </a>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3">
+            {[['35+', 'Clientes activos'], ['9', 'Países'], ['35%', 'Más leads calificados']].map(([stat, label]) => (
+              <div key={stat} className="card-surface rounded-2xl px-4 py-2">
+                <span className="font-mono text-sm font-bold wg-gradient-text mr-1.5">{stat}</span>
+                <span className="text-xs text-wg-muted">{label}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* ── Columna visual: solo desde md, para no alargar el hero en móvil ── */}
+        <div className="hidden md:block">
+          <HeroInbox />
         </div>
       </div>
     </section>

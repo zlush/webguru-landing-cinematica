@@ -2,6 +2,9 @@
    component under src/pages/articles/. Keep this array ordered newest-first;
    the Resources section on the landing page reads the first three. */
 
+/* Las portadas son propias y viven en public/blog/. Antes eran fotos de
+   Unsplash sin relación con el tema — una era el logo de Netflix, una marca
+   ajena usada como decoración en un sitio comercial. */
 export const ARTICLES = [
   {
     slug: 'que-es-un-crm',
@@ -14,7 +17,7 @@ export const ARTICLES = [
     readTime: '6 min',
     date: '2026-07-29',
     dateLabel: '29 de julio de 2026',
-    image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80',
+    image: '/blog/que-es-un-crm.webp',
     excerpt:
       'Un CRM no es una planilla con esteroides. Es el lugar donde deja de perderse el 100% de los contactos que hoy se te escapan entre WhatsApp, Instagram y la libreta.',
   },
@@ -29,9 +32,9 @@ export const ARTICLES = [
     readTime: '7 min',
     date: '2026-07-29',
     dateLabel: '29 de julio de 2026',
-    image: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=800&q=80',
+    image: '/blog/automatizar-whatsapp-business-agendar-citas.webp',
     excerpt:
-      'El 60% de las consultas llegan fuera del horario de atención. Automatizar WhatsApp no es poner un robot: es no perder al que escribe un domingo a las 23:00.',
+      'Automatizar WhatsApp no es poner un robot: es no perder al que te escribe un domingo a las 23:00, cuando no hay nadie para contestarle.',
   },
   {
     slug: 'glosario-marketing-digital',
@@ -44,7 +47,7 @@ export const ARTICLES = [
     readTime: '9 min',
     date: '2026-07-29',
     dateLabel: '29 de julio de 2026',
-    image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80',
+    image: '/blog/glosario-marketing-digital.webp',
     excerpt:
       'Treinta términos que vas a escuchar en cualquier reunión de marketing, explicados sin jerga y con la fórmula concreta cuando corresponde.',
   },
