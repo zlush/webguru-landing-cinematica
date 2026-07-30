@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState, useId, lazy, Suspense } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
+import { Link } from 'react-router-dom'
 import { Navbar, Footer, WhatsAppFab } from './components/Chrome'
+import { ARTICLES } from './content/articles'
 import { useSeo, useJsonLd, SITE_URL } from './hooks/useSeo'
 import {
   MessageSquare, Instagram, Facebook, Mail, Phone,
@@ -1812,36 +1814,8 @@ function CTAStrip() {
 /* ──────────────────────────────────────────
    RESOURCES / BLOG
 ────────────────────────────────────────── */
-const resources = [
-  {
-    title: '¿Qué es un CRM y por qué tu negocio lo necesita urgentemente?',
-    category: 'Educación CRM',
-    readTime: '5 min',
-    image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?w=800&q=80',
-    link: null,   // el artículo aún no existe → la tarjeta no se enlaza
-  },
-  {
-    title: 'Cómo automatizar tu WhatsApp Business para agendar citas 24/7',
-    category: 'Automatización',
-    readTime: '4 min',
-    image: 'https://images.unsplash.com/photo-1611162617474-5b21e879e113?w=800&q=80',
-    link: null,
-  },
-  {
-    title: 'Glosario de Marketing Digital: Engagement, Segmentación y más',
-    category: 'Marketing',
-    readTime: '7 min',
-    image: 'https://images.unsplash.com/photo-1460925895917-afdab827c52f?w=800&q=80',
-    link: null,
-  }
-]
-
-/* Renders as <a> when there is somewhere to go, otherwise as a plain <div>. */
-function Card(props) {
-  const { as, children, ...rest } = props
-  const Tag = as || 'div'
-  return <Tag {...rest}>{children}</Tag>
-}
+/* Los tres artículos vienen del índice del blog: una sola fuente de verdad. */
+const resources = ARTICLES.slice(0, 3)
 
 function Resources() {
   const ref = useRef(null)
@@ -1869,20 +1843,15 @@ function Resources() {
               Aprende a <span className="font-serif italic font-semibold wg-gradient-text">escalar.</span>
             </h2>
           </div>
-          {resources.some(r => r.link) && (
-            <a href="/blog" className="btn btn-outline text-sm px-6 py-2">Ver todos los artículos</a>
-          )}
+          <Link to="/blog" className="btn btn-outline text-sm px-6 py-2">Ver todos los artículos</Link>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {resources.map((res, i) => (
             <div key={i} data-res>
-              {/* Sin artículo publicado la tarjeta no es un enlace: un href="#"
-                  cuenta como enlace roto para buscadores y engaña al usuario. */}
-              <Card
-                as={res.link ? 'a' : 'div'}
-                href={res.link || undefined}
-                className={`group block card-surface rounded-3xl overflow-hidden transition-all duration-300 ${res.link ? 'hover:-translate-y-1 hover:shadow-2xl hover:shadow-wg-blue/10' : ''}`}>
+              <Link
+                to={`/blog/${res.slug}`}
+                className="group block card-surface rounded-3xl overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-wg-blue/10">
                 <div className="relative h-48 overflow-hidden">
                   <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors z-10" />
                   <img src={res.image} alt={res.title} loading="lazy" decoding="async" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
@@ -1892,18 +1861,12 @@ function Resources() {
                     <span className="text-xs font-bold text-wg-blue uppercase tracking-wider">{res.category}</span>
                     <span className="w-1 h-1 rounded-full bg-white/20" />
                     <span className="text-xs text-wg-muted">{res.readTime}</span>
-                    {!res.link && (
-                      <span className="ml-auto text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded-full text-wg-muted"
-                        style={{ border: '1px solid rgba(255,255,255,0.12)' }}>
-                        Próximamente
-                      </span>
-                    )}
                   </div>
                   <h3 className="text-lg font-bold leading-snug mb-2 group-hover:text-wg-blue transition-colors text-white/90">
                     {res.title}
                   </h3>
                 </div>
-              </Card>
+              </Link>
             </div>
           ))}
         </div>

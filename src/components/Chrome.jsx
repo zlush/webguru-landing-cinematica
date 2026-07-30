@@ -105,8 +105,8 @@ export function Footer() {
   const empresa = [
     ['Casos de éxito', anchor('testimonios')],
     ['Sobre nosotros', '/sobre-nosotros'],
+    ['Blog', '/blog'],
     ['Partners', '/partners'],
-    ['Precios', anchor('precios')],
     ['Términos', '/terminos'],
     ['Privacidad', '/privacidad'],
   ]
