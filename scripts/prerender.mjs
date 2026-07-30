@@ -75,12 +75,30 @@ function serveDist(shell) {
   })
 }
 
+/* Build logs are not always reachable (no dashboard access, no CLI token), so the
+   outcome is also written to dist/prerender-status.txt. Fetching that file from
+   the deployed site tells you exactly what happened during the build. */
+const status = []
+const note = (line) => { console.log(`[prerender] ${line}`); status.push(line) }
+
+async function writeStatus(outcome) {
+  try {
+    await writeFile(
+      join(DIST, 'prerender-status.txt'),
+      [`outcome: ${outcome}`, `node: ${process.version}`, `platform: ${process.platform}`,
+       `date: ${new Date().toISOString()}`, '', ...status].join('\n'),
+      'utf-8'
+    )
+  } catch { /* nothing more we can do */ }
+}
+
 async function main() {
   let chromium
   try {
     ({ chromium } = await import('playwright'))
-  } catch {
-    console.log('[prerender] playwright no disponible — se omite, dist/ queda como SPA')
+  } catch (err) {
+    note(`playwright no importable: ${err.message.split('\n')[0]}`)
+    await writeStatus('skipped-no-playwright')
     return
   }
 
@@ -91,16 +109,19 @@ async function main() {
   let browser
   try {
     browser = await chromium.launch()
-  } catch {
-    // Fresh CI images have the package but not the browser binary. Try once to
-    // fetch it; if that also fails, ship the SPA build untouched.
+  } catch (err1) {
+    note(`launch #1 falló: ${err1.message.split('\n')[0]}`)
+    // Fresh CI images have the package but not the browser binary. Try to fetch
+    // it; if that also fails, ship the SPA build untouched.
     try {
-      console.log('[prerender] descargando Chromium…')
-      execSync('npx playwright install chromium', { stdio: 'inherit', timeout: 300000 })
+      note('descargando Chromium…')
+      execSync('npx playwright install chromium', { stdio: 'inherit', timeout: 420000 })
       browser = await chromium.launch()
+      note('launch #2 OK tras descargar')
     } catch (err2) {
-      console.log(`[prerender] Chromium no disponible (${err2.message.split('\n')[0]}) — se omite`)
+      note(`launch #2 falló: ${err2.message.split('\n')[0]}`)
       server.close()
+      await writeStatus('skipped-no-chromium')
       return
     }
   }
@@ -131,20 +152,22 @@ async function main() {
       await writeFile(join(outDir, 'index.html'), html, 'utf-8')
 
       const text = await page.evaluate(() => document.body.innerText.replace(/\s+/g, ' ').trim().length)
-      console.log(`[prerender] ${route.padEnd(52)} ${String(text).padStart(6)} caracteres de texto`)
+      note(`${route.padEnd(52)} ${String(text).padStart(6)} caracteres de texto`)
       done++
     } catch (err) {
-      console.log(`[prerender] ${route} falló: ${err.message.split('\n')[0]}`)
+      note(`${route} falló: ${err.message.split('\n')[0]}`)
     }
   }
 
   await browser.close()
   server.close()
-  console.log(`[prerender] listo: ${done}/${ROUTES.length} rutas`)
+  note(`listo: ${done}/${ROUTES.length} rutas`)
+  await writeStatus(done === ROUTES.length ? 'ok' : `partial-${done}/${ROUTES.length}`)
 }
 
-main().catch(err => {
+main().catch(async err => {
   // Never fail the build over prerendering.
-  console.log(`[prerender] omitido por error: ${err.message.split('\n')[0]}`)
+  note(`abortado: ${err.message.split('\n')[0]}`)
+  await writeStatus('error')
   process.exit(0)
 })
