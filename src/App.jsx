@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, lazy, Suspense } from 'react'
+import { useEffect, useRef, useState, useId, lazy, Suspense } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import {
@@ -14,6 +14,15 @@ import {
 const Spline = lazy(() => import('@splinetool/react-spline'))
 
 gsap.registerPlugin(ScrollTrigger)
+
+// Respect prefers-reduced-motion. These entrances must be skipped outright, not
+// shortened: gsap.from()/fromTo() apply their start state (opacity 0) the moment
+// they are created, so anything that still builds the tween leaves content
+// invisible until its ScrollTrigger fires. Never creating them keeps every
+// element in its natural, visible state.
+const PREFERS_REDUCED_MOTION =
+  typeof window !== 'undefined' &&
+  window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
 /* ──────────────────────────────────────────
    NAVBAR
@@ -59,7 +68,12 @@ function Navbar() {
         </div>
 
         {/* Mobile Toggle */}
-        <button className="md:hidden text-white p-2" onClick={() => setMenuOpen(!menuOpen)}>
+        <button
+          className="md:hidden text-white p-3 -mr-1 grid place-items-center min-w-[44px] min-h-[44px]"
+          onClick={() => setMenuOpen(!menuOpen)}
+          aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'}
+          aria-expanded={menuOpen}
+        >
           {menuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
       </div>
@@ -91,6 +105,7 @@ function Hero() {
   const ref = useRef(null)
 
   useEffect(() => {
+    if (PREFERS_REDUCED_MOTION) return
     const ctx = gsap.context(() => {
       gsap.from('[data-hero]', {
         y: 50, opacity: 0, duration: 1.1,
@@ -518,6 +533,7 @@ function Pillars() {
   const ref = useRef(null)
 
   useEffect(() => {
+    if (PREFERS_REDUCED_MOTION) return
     const ctx = gsap.context(() => {
       gsap.from('[data-pillar]', {
         y: 50, opacity: 0, duration: 0.9, ease: 'power3.out', stagger: 0.15,
@@ -1259,6 +1275,7 @@ function AIMeetingCard() {
 function Features() {
   const ref = useRef(null)
   useEffect(() => {
+    if (PREFERS_REDUCED_MOTION) return
     const ctx = gsap.context(() => {
       gsap.from('[data-feat]', {
         y: 60, opacity: 0, duration: 0.9, ease: 'power3.out', stagger: 0.12,
@@ -1308,6 +1325,7 @@ function Features() {
 function Philosophy() {
   const ref = useRef(null)
   useEffect(() => {
+    if (PREFERS_REDUCED_MOTION) return
     const ctx = gsap.context(() => {
       gsap.from('[data-phil]', {
         y: 40, opacity: 0, duration: 1, ease: 'power3.out', stagger: 0.2,
@@ -1417,6 +1435,7 @@ function Protocol() {
   const cardRefs = useRef([])
 
   useEffect(() => {
+    if (PREFERS_REDUCED_MOTION) return
     const cards = cardRefs.current
     const ctx = gsap.context(() => {
       cards.forEach((card) => {
@@ -1496,6 +1515,7 @@ const testimonials = [
 function Testimonials() {
   const ref = useRef(null)
   useEffect(() => {
+    if (PREFERS_REDUCED_MOTION) return
     const ctx = gsap.context(() => {
       gsap.from('[data-test]', {
         y: 40, opacity: 0, duration: 0.8, ease: 'power3.out', stagger: 0.12,
@@ -1565,6 +1585,7 @@ const plans = [
 function Pricing() {
   const ref = useRef(null)
   useEffect(() => {
+    if (PREFERS_REDUCED_MOTION) return
     const ctx = gsap.context(() => {
       gsap.from('[data-price]', {
         y: 50, opacity: 0, duration: 0.8, ease: 'power3.out', stagger: 0.1,
@@ -1633,6 +1654,9 @@ function Pricing() {
    FORMULARIO / LEADCONNECTOR (REUTILIZABLE)
 ────────────────────────────────────────── */
 function LeadForm() {
+  // This form is mounted twice on the page, so field ids must be unique per
+  // instance — hardcoded ids would collide and break label association.
+  const uid = useId()
   const [status, setStatus] = useState('idle')
 
   const handleSubmit = async (e) => {
@@ -1697,24 +1721,26 @@ function LeadForm() {
       <form onSubmit={handleSubmit} className="flex flex-col gap-4">
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-semibold text-wg-muted mb-1 ml-1 uppercase tracking-wide">Nombre *</label>
-            <input required name="firstName" type="text" className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-wg-blue/50 focus:ring-1 focus:ring-wg-blue/50 transition-all" placeholder="Juan" />
+            <label htmlFor={`${uid}-firstName`} className="block text-xs font-semibold text-wg-muted mb-1 ml-1 uppercase tracking-wide">Nombre *</label>
+            <input required id={`${uid}-firstName`} autoComplete="given-name" name="firstName" type="text" className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-wg-blue/50 focus:ring-1 focus:ring-wg-blue/50 transition-all" placeholder="Juan" />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-wg-muted mb-1 ml-1 uppercase tracking-wide">Apellido *</label>
-            <input required name="lastName" type="text" className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-wg-blue/50 focus:ring-1 focus:ring-wg-blue/50 transition-all" placeholder="Pérez" />
+            <label htmlFor={`${uid}-lastName`} className="block text-xs font-semibold text-wg-muted mb-1 ml-1 uppercase tracking-wide">Apellido *</label>
+            <input required id={`${uid}-lastName`} autoComplete="family-name" name="lastName" type="text" className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-wg-blue/50 focus:ring-1 focus:ring-wg-blue/50 transition-all" placeholder="Pérez" />
           </div>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-xs font-semibold text-wg-muted mb-1 ml-1 uppercase tracking-wide">Email *</label>
-            <input required name="email" type="email" className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-wg-blue/50 focus:ring-1 focus:ring-wg-blue/50 transition-all" placeholder="juan@empresa.com" />
+            <label htmlFor={`${uid}-email`} className="block text-xs font-semibold text-wg-muted mb-1 ml-1 uppercase tracking-wide">Email *</label>
+            <input required id={`${uid}-email`} autoComplete="email" name="email" type="email" className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-wg-blue/50 focus:ring-1 focus:ring-wg-blue/50 transition-all" placeholder="juan@empresa.com" />
           </div>
           <div>
-            <label className="block text-xs font-semibold text-wg-muted mb-1 ml-1 uppercase tracking-wide">Teléfono (con WhatsApp) *</label>
+            <label htmlFor={`${uid}-phoneNumber`} className="block text-xs font-semibold text-wg-muted mb-1 ml-1 uppercase tracking-wide">Teléfono (con WhatsApp) *</label>
             <div className="flex gap-2">
               <select
+                id={`${uid}-countryCode`}
+                aria-label="Código de país"
                 name="countryCode"
                 defaultValue="+56"
                 className="flex-shrink-0 bg-black/40 border border-white/10 rounded-xl px-2 py-3 text-white focus:outline-none focus:border-wg-blue/50 focus:ring-1 focus:ring-wg-blue/50 transition-all w-[100px] text-sm"
@@ -1727,19 +1753,21 @@ function LeadForm() {
                 <option value="+34">🇪🇸 +34</option>
                 <option value="+1">🇺🇸 +1</option>
               </select>
-              <input required name="phoneNumber" type="tel" className="flex-1 min-w-0 bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-wg-blue/50 focus:ring-1 focus:ring-wg-blue/50 transition-all" placeholder="9 1234 5678" />
+              <input required id={`${uid}-phoneNumber`} autoComplete="tel-national" name="phoneNumber" type="tel" className="flex-1 min-w-0 bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-wg-blue/50 focus:ring-1 focus:ring-wg-blue/50 transition-all" placeholder="9 1234 5678" />
             </div>
           </div>
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-wg-muted mb-1 ml-1 uppercase tracking-wide">Empresa</label>
-          <input name="companyName" type="text" className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-wg-blue/50 focus:ring-1 focus:ring-wg-blue/50 transition-all" placeholder="Nombre completo de tu negocio" />
+          <label htmlFor={`${uid}-companyName`} className="block text-xs font-semibold text-wg-muted mb-1 ml-1 uppercase tracking-wide">Empresa</label>
+          <input id={`${uid}-companyName`} autoComplete="organization" name="companyName" type="text" className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-wg-blue/50 focus:ring-1 focus:ring-wg-blue/50 transition-all" placeholder="Nombre completo de tu negocio" />
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-wg-muted mb-1 ml-1 uppercase tracking-wide">Sitio Web</label>
+          <label htmlFor={`${uid}-website`} className="block text-xs font-semibold text-wg-muted mb-1 ml-1 uppercase tracking-wide">Sitio Web</label>
           <input
+            id={`${uid}-website`}
+            autoComplete="url"
             name="website"
             type="text"
             pattern=".*\..*"
@@ -1750,8 +1778,8 @@ function LeadForm() {
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-wg-muted mb-1 ml-1 uppercase tracking-wide">¿En qué podemos ayudarte?</label>
-          <textarea name="message" rows="3" className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-wg-blue/50 focus:ring-1 focus:ring-wg-blue/50 transition-all" placeholder="Cuéntanos brevemente sobre tu proceso comercial actual..."></textarea>
+          <label htmlFor={`${uid}-message`} className="block text-xs font-semibold text-wg-muted mb-1 ml-1 uppercase tracking-wide">¿En qué podemos ayudarte?</label>
+          <textarea id={`${uid}-message`} name="message" rows="3" className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:border-wg-blue/50 focus:ring-1 focus:ring-wg-blue/50 transition-all" placeholder="Cuéntanos brevemente sobre tu proceso comercial actual..."></textarea>
         </div>
 
         <button
@@ -1880,6 +1908,7 @@ const resources = [
 function Resources() {
   const ref = useRef(null)
   useEffect(() => {
+    if (PREFERS_REDUCED_MOTION) return
     const ctx = gsap.context(() => {
       gsap.fromTo('[data-res]',
         { y: 40, opacity: 0 },
@@ -1959,6 +1988,7 @@ function FAQ() {
   const ref = useRef(null)
 
   useEffect(() => {
+    if (PREFERS_REDUCED_MOTION) return
     const ctx = gsap.context(() => {
       gsap.fromTo('[data-faq]',
         { y: 20, opacity: 0 },
@@ -2033,17 +2063,19 @@ function Footer() {
         </div>
         <div>
           <h4 className="font-semibold text-sm mb-4">Plataforma</h4>
-          <ul className="space-y-3 text-sm text-wg-muted">
+          {/* py-2.5 keeps each row at a ~44px tap target without changing the
+              column's visual rhythm (the old space-y-3 gap moves inside). */}
+          <ul className="-my-2 text-sm text-wg-muted">
             {['CRM Omnicanal', 'Asistente IA 24/7', 'Anti No-Show', 'Sitios Web & Landings', 'Email Marketing', 'Gestión de Ads'].map(l => (
-              <li key={l}><a href="#" className="hover:text-white transition-colors hover:-translate-y-px inline-block">{l}</a></li>
+              <li key={l}><a href="#" className="hover:text-white transition-colors block py-2.5">{l}</a></li>
             ))}
           </ul>
         </div>
         <div>
           <h4 className="font-semibold text-sm mb-4">Empresa</h4>
-          <ul className="space-y-3 text-sm text-wg-muted">
+          <ul className="-my-2 text-sm text-wg-muted">
             {['Casos de éxito', 'Sobre nosotros', 'Blog', 'Partners', 'Términos', 'Privacidad'].map(l => (
-              <li key={l}><a href="#" className="hover:text-white transition-colors hover:-translate-y-px inline-block">{l}</a></li>
+              <li key={l}><a href="#" className="hover:text-white transition-colors block py-2.5">{l}</a></li>
             ))}
           </ul>
         </div>

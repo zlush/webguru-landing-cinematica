@@ -132,3 +132,31 @@ body::after {
   66%  { transform: translateY(0)    scale(1)   ; z-index:1; opacity:0.7; }
   100% { transform: translateY(0)    scale(1)   ; z-index:1; opacity:0.7; }
 }
+
+/* ── Anchor offset for the fixed navbar ──
+   The pill sits at top:16px and is ~66px tall; without this, jumping to
+   #precios etc. parks the section heading underneath it. */
+section[id], [id]:target { scroll-margin-top: 110px; }
+
+/* ── Reduced motion ──
+   Kills the decorative loops. GSAP entrances are handled in App.jsx: they are
+   all gsap.from/fromTo, so collapsing the global timeline lands every element
+   on its natural (visible) state without any movement. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+  /* The logo strip is an infinite horizontal crawl — make it a static,
+     wrapped row instead of a frozen overflowing one. */
+  .marquee-track {
+    animation: none !important;
+    width: 100%;
+    flex-wrap: wrap;
+    justify-content: center;
+    row-gap: 1.5rem;
+  }
+  /* Keep the blinking cursor legible rather than stuck mid-blink. */
+  .cursor-blink { opacity: 1 !important; }
+}
