@@ -256,7 +256,7 @@ export default function Calculadora() {
 
       {/* ── Top bar ── */}
       <div className="border-b border-white/5 px-6 py-4 flex items-center gap-4">
-        <img src="/webguru-logo-dark.png" alt="WebGuru" className="h-7 w-auto" />
+        <img src="/webguru-logo-dark.webp" alt="WebGuru" className="h-7 w-auto" />
         <div className="w-px h-5 bg-white/10" />
         <div className="flex items-center gap-2">
           <Activity className="w-4 h-4 text-purple-400" />

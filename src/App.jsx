@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, lazy, Suspense } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import {
@@ -9,7 +9,9 @@ import {
   Menu, X, ChevronDown, Plus, Minus,
   Target, Mic
 } from 'lucide-react'
-import Spline from '@splinetool/react-spline'
+// The Spline runtime is several MB. Statically imported it lands in the main
+// bundle and everything else on the page waits behind it.
+const Spline = lazy(() => import('@splinetool/react-spline'))
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -36,7 +38,7 @@ function Navbar() {
         : 'bg-black/40 backdrop-blur-md border border-white/10 shadow-lg shadow-black/30'}`}>
       <div className="flex items-center justify-between">
         <a href="#">
-          <img src="/webguru-logo-dark.png" alt="WebGuru" className="h-8 w-auto" />
+          <img src="/webguru-logo-dark.webp" alt="WebGuru" className="h-8 w-auto" />
         </a>
 
         {/* Desktop Links */}
@@ -103,7 +105,10 @@ function Hero() {
       {/* Background with Spline 3D */}
       <div className="absolute inset-0 z-0 bg-[#060910] overflow-hidden">
         <div className="absolute inset-0 z-0">
-          <Spline style={{ width: '100%', height: '100%', pointerEvents: 'auto' }} scene="https://prod.spline.design/IC8nRhZUIr6HQveG/scene.splinecode" />
+          {/* Falls back to the section's flat background until the runtime lands. */}
+          <Suspense fallback={null}>
+            <Spline style={{ width: '100%', height: '100%', pointerEvents: 'auto' }} scene="https://prod.spline.design/IC8nRhZUIr6HQveG/scene.splinecode" />
+          </Suspense>
         </div>
 
         {/* Dark overlays to ensure text legibility over the 3D model */}
@@ -163,10 +168,19 @@ function Hero() {
 /* ──────────────────────────────────────────
    VIDEO SCRUB — Los Tres Pilares
 ────────────────────────────────────────── */
+const SCRUB_SRC = '/pillars-scrub.mp4'
+const SCRUB_POSTER = '/pillars-scrub-poster.webp'
+
 function VideoScrub() {
   const wrapperRef = useRef(null)
-  const videoRef = useRef(null)   // desktop video (primary)
-  const video2Ref = useRef(null)  // mobile video (mirror)
+  const videoRef = useRef(null)   // single <video> — only one is mounted per breakpoint
+  const [isMobile, setIsMobile] = useState(
+    () => typeof window !== 'undefined' && window.matchMedia('(max-width: 767px)').matches
+  )
+  // No IntersectionObserver (very old browsers) → skip deferral, load eagerly.
+  const [shouldLoad, setShouldLoad] = useState(
+    () => typeof window !== 'undefined' && !('IntersectionObserver' in window)
+  )
   const [loaded, setLoaded] = useState(false)
   const [loadPct, setLoadPct] = useState(0)
   const [activePanel, setActivePanel] = useState(0)
@@ -191,55 +205,68 @@ function VideoScrub() {
     },
   ]
 
-  // Track buffering progress — loading bar only, video is always visible
+  // Keep track of the active breakpoint so only ONE <video> is ever mounted.
+  // Two mounted <video> tags download the same file twice.
   useEffect(() => {
-    const videos = [videoRef.current, video2Ref.current].filter(Boolean)
-    if (!videos.length) return
+    const mq = window.matchMedia('(max-width: 767px)')
+    const onChange = e => setIsMobile(e.matches)
+    mq.addEventListener('change', onChange)
+    return () => mq.removeEventListener('change', onChange)
+  }, [])
 
-    const onReady = () => setLoaded(true)
+  // Defer the download until the section is close. The page ships a lot of
+  // imagery above this point; fetching the clip up-front just makes it queue
+  // behind everything else and arrive late (or never, on a slow connection).
+  useEffect(() => {
+    const wrapper = wrapperRef.current
+    if (!wrapper || shouldLoad) return
+
+    const io = new IntersectionObserver(
+      entries => { if (entries.some(e => e.isIntersecting)) setShouldLoad(true) },
+      { rootMargin: '150% 0px' }   // ~1.5 screens of head start
+    )
+    io.observe(wrapper)
+    return () => io.disconnect()
+  }, [shouldLoad])
+
+  // Track real buffering progress and prime the decoder.
+  useEffect(() => {
+    const v = videoRef.current
+    if (!v || !shouldLoad) return
+
+    const onReady = () => {
+      setLoaded(true)
+      // iOS/Safari won't decode a frame until playback is kicked off once.
+      // Muted play() is allowed without a gesture; pause immediately after.
+      v.play().then(() => v.pause()).catch(() => {})
+    }
     const onProgress = () => {
-      // Use whichever video has buffering info
-      const v = videos.find(v => v.buffered.length && v.duration) || videos[0]
       if (v.buffered.length && v.duration) {
         setLoadPct(v.buffered.end(v.buffered.length - 1) / v.duration)
       }
     }
 
-    videos.forEach(v => {
-      v.addEventListener('loadeddata', onReady)
-      v.addEventListener('canplay', onReady)
-      v.addEventListener('canplaythrough', onReady)
-      v.addEventListener('progress', onProgress)
-      if (v.readyState >= 2) onReady()
-    })
+    v.addEventListener('loadeddata', onReady)
+    v.addEventListener('canplay', onReady)
+    v.addEventListener('canplaythrough', onReady)
+    v.addEventListener('progress', onProgress)
 
-    // Fallback: force hide loading bar after 5s regardless of events
-    const fallback = setTimeout(() => setLoaded(true), 5000)
+    if (v.readyState >= 2) onReady()
+    else v.load()   // preload flipped none -> auto; force the fetch
 
     return () => {
-      clearTimeout(fallback)
-      videos.forEach(v => {
-        v.removeEventListener('loadeddata', onReady)
-        v.removeEventListener('canplay', onReady)
-        v.removeEventListener('canplaythrough', onReady)
-        v.removeEventListener('progress', onProgress)
-      })
+      v.removeEventListener('loadeddata', onReady)
+      v.removeEventListener('canplay', onReady)
+      v.removeEventListener('canplaythrough', onReady)
+      v.removeEventListener('progress', onProgress)
     }
-  }, [])
+  }, [shouldLoad, isMobile])
 
   // Wire scroll → video currentTime via rAF + seek queue (no stuck frames)
   useEffect(() => {
-    const video = videoRef.current   // primary (desktop)
-    const video2 = video2Ref.current // mirror (mobile)
+    const video = videoRef.current
     const wrapper = wrapperRef.current
     if (!video || !wrapper) return
-
-    // Mirror helper — applies time to the other video without queuing
-    const mirror = (t) => {
-      if (video2 && video2.readyState >= 2 && Math.abs(video2.currentTime - t) > 0.001) {
-        video2.currentTime = t
-      }
-    }
 
     // When a seek finishes, immediately apply any queued position
     const onSeeked = () => {
@@ -249,7 +276,6 @@ function VideoScrub() {
         pendingTime.current = null
         video.currentTime = t
         seekPending.current = true
-        mirror(t)
       }
     }
     video.addEventListener('seeked', onSeeked)
@@ -273,7 +299,6 @@ function VideoScrub() {
           if (Math.abs(video.currentTime - t) > 0.001) {
             video.currentTime = t
             seekPending.current = true
-            mirror(t)
           }
         } else {
           pendingTime.current = t
@@ -289,18 +314,20 @@ function VideoScrub() {
     }
 
     window.addEventListener('scroll', onScroll, { passive: true })
+    update()   // sync immediately — the section may already be mid-viewport
     return () => {
       window.removeEventListener('scroll', onScroll)
       video.removeEventListener('seeked', onSeeked)
     }
-  }, [])
+  }, [isMobile])
 
   return (
     <section ref={wrapperRef} style={{ height: '200vh' }} className="relative">
       <div className="sticky top-0 bg-[#0A0E1A] overflow-hidden" style={{ height: '100svh' }}>
 
         {/* ── DESKTOP layout: cards left + video right ── */}
-        <div className="hidden md:flex h-full items-center justify-center gap-12 lg:gap-24 w-full max-w-5xl mx-auto px-10">
+        {!isMobile && (
+        <div className="flex h-full items-center justify-center gap-12 lg:gap-24 w-full max-w-5xl mx-auto px-10">
 
           {/* Cards column */}
           <div className="flex flex-col gap-3 w-72 lg:w-80 flex-shrink-0">
@@ -351,8 +378,10 @@ function VideoScrub() {
           <div className="flex-shrink-0 relative" style={{ width: 'min(52vh, 520px)', height: 'min(52vh, 520px)' }}>
             <video
               ref={videoRef}
-              src="/pillars-scrub.mp4"
-              preload="auto" muted playsInline disablePictureInPicture
+              src={SCRUB_SRC}
+              poster={SCRUB_POSTER}
+              preload={shouldLoad ? 'auto' : 'none'}
+              muted playsInline disablePictureInPicture
               className="w-full h-full object-cover"
               style={{
                 pointerEvents: 'none',
@@ -370,16 +399,20 @@ function VideoScrub() {
             )}
           </div>
         </div>
+        )}
 
         {/* ── MOBILE layout: video top-half, active card bottom ── */}
-        <div className="md:hidden flex flex-col h-full">
+        {isMobile && (
+        <div className="flex flex-col h-full">
 
           {/* Video — top 55% of screen */}
           <div className="relative flex-shrink-0" style={{ height: '55svh' }}>
             <video
-              ref={video2Ref}
-              src="/pillars-scrub.mp4"
-              preload="auto" muted playsInline disablePictureInPicture
+              ref={videoRef}
+              src={SCRUB_SRC}
+              poster={SCRUB_POSTER}
+              preload={shouldLoad ? 'auto' : 'none'}
+              muted playsInline disablePictureInPicture
               className="w-full h-full object-cover"
               style={{
                 pointerEvents: 'none',
@@ -433,6 +466,7 @@ function VideoScrub() {
             </div>
           </div>
         </div>
+        )}
 
         {/* Edge fades (both breakpoints) */}
         <div className="absolute inset-x-0 top-0 h-16 pointer-events-none z-10"
@@ -462,8 +496,9 @@ function ClientLogos() {
           {[...logos, ...logos].map((n, i) => (
             <img
               key={i}
-              src={`/logos/${n}.png`}
+              src={`/logos/${n}.webp`}
               alt=""
+              loading="lazy" decoding="async"
               className="h-8 md:h-10 w-auto object-contain flex-shrink-0 transition-all duration-300"
               style={{ filter: 'brightness(0) invert(1)', opacity: 0.35 }}
               onMouseEnter={e => { e.currentTarget.style.opacity = '0.75' }}
@@ -1285,8 +1320,9 @@ function Philosophy() {
   return (
     <section ref={ref} className="relative py-40 overflow-hidden">
       <div className="absolute inset-0 z-0">
-        <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=1920&q=80"
-          alt="" className="w-full h-full object-cover opacity-8" />
+        {/* Rendered at 8% opacity behind a gradient — a big/sharp source is wasted bytes. */}
+        <img src="https://images.unsplash.com/photo-1518770660439-4636190af475?w=1000&q=45"
+          alt="" loading="lazy" decoding="async" className="w-full h-full object-cover opacity-8" />
         <div className="absolute inset-0" style={{ background: 'linear-gradient(to bottom, #060910 0%, #0A0E1A 50%, #060910 100%)' }} />
       </div>
       <div className="relative z-10 max-w-4xl mx-auto px-6 md:px-12">
@@ -1488,7 +1524,9 @@ function Testimonials() {
               </div>
               <p className="text-sm text-white/80 leading-relaxed flex-1">"{t.text}"</p>
               <div className="flex items-center gap-3 mt-1">
-                <img src={t.photo} alt={t.name}
+                {/* Sources are full-size (up to 1 MB) but render at 40px.
+                    Nothing we can crop client-side — at least keep them off the critical path. */}
+                <img src={t.photo} alt={t.name} loading="lazy" decoding="async"
                   className="w-10 h-10 rounded-full object-cover flex-shrink-0 ring-2 ring-wg-blue/20" />
                 <div>
                   <div className="font-semibold text-sm">{t.name}</div>
@@ -1789,12 +1827,12 @@ function CTAStrip() {
     <section id="demo" className="py-32 px-6 md:px-12 text-center relative overflow-hidden">
       {/* Guru cartoon — subtle background character */}
       <div className="absolute bottom-0 left-1/2 -translate-x-1/2 z-0 opacity-8 pointer-events-none select-none hidden md:block" style={{ width: '320px' }}>
-        <img src="/guru-cartoon.png" alt="" className="w-full h-auto" style={{ filter: 'brightness(0.5) saturate(0.4)' }} />
+        <img src="/guru-cartoon.webp" alt="" loading="lazy" decoding="async" className="w-full h-auto" style={{ filter: 'brightness(0.5) saturate(0.4)' }} />
       </div>
       <div className="relative z-10 max-w-3xl mx-auto">
         {/* Guru cartoon — visible mascot above the CTA */}
         <div className="flex justify-center mb-8">
-          <img src="/guru-cartoon.png" alt="WebGuru" className="h-36 w-auto" style={{ filter: 'drop-shadow(0 8px 32px rgba(109,27,208,0.35))' }} />
+          <img src="/guru-cartoon.webp" alt="WebGuru" loading="lazy" decoding="async" className="h-36 w-auto" style={{ filter: 'drop-shadow(0 8px 32px rgba(109,27,208,0.35))' }} />
         </div>
         <span className="section-label mb-4 block">Agenda una Demo</span>
         <h2 className="font-sans font-extrabold text-5xl md:text-6xl tracking-tight leading-none mb-6">
@@ -1873,7 +1911,7 @@ function Resources() {
               <a href={res.link} className="group block card-surface rounded-3xl overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl hover:shadow-wg-blue/10">
                 <div className="relative h-48 overflow-hidden">
                   <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors z-10" />
-                  <img src={res.image} alt={res.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                  <img src={res.image} alt={res.title} loading="lazy" decoding="async" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                 </div>
                 <div className="p-6">
                   <div className="flex items-center gap-3 mb-3">
@@ -1981,7 +2019,7 @@ function Footer() {
       <div className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
         <div className="md:col-span-2">
           <div className="mb-4">
-            <img src="/webguru-logo-dark.png" alt="WebGuru" className="h-9 w-auto" />
+            <img src="/webguru-logo-dark.webp" alt="WebGuru" className="h-9 w-auto" />
           </div>
           <p className="text-wg-muted text-sm leading-relaxed max-w-xs mb-6">
             CRM + IA + Automatizaciones para negocios de servicios.<br />
