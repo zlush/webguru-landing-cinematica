@@ -1598,22 +1598,37 @@ function Testimonials() {
 /* ──────────────────────────────────────────
    PRICING
 ────────────────────────────────────────── */
+/* Los precios no se publican a propósito: varían según el alcance de cada
+   cliente. Lo que sí se explicita es POR QUÉ no están y qué los determina —
+   antes la sección mostraba tres planes con features y ningún número, sin
+   ninguna explicación, y eso se lee como un dato faltante: el visitante asume
+   "es caro" y se va. La etiqueta de cada tarjeta decía "—", que reforzaba esa
+   lectura. */
 const plans = [
   {
-    name: 'Esencial', highlight: false, cta: 'Comenzar',
+    name: 'Esencial', highlight: false, cta: 'Solicitar cotización', tag: 'PARA EMPEZAR',
     desc: 'Para negocios que quieren arrancar con automatización',
     features: ['CRM Omnicanal', 'Asistente IA básico', 'Anti No-Show', 'Hasta 500 contactos', 'Soporte vía email']
   },
   {
-    name: 'Rendimiento', highlight: true, cta: 'Agenda demo',
+    name: 'Rendimiento', highlight: true, cta: 'Agenda demo', tag: '⭐ MÁS POPULAR',
     desc: 'El más popular — para negocios que quieren escalar',
     features: ['Todo lo de Esencial', 'Asistente IA avanzado', 'Email Marketing', 'Gestión de Ads', '5.000 contactos', 'Soporte prioritario']
   },
   {
-    name: 'Enterprise', highlight: false, cta: 'Contactar',
+    name: 'Enterprise', highlight: false, cta: 'Contactar', tag: 'A MEDIDA',
     desc: 'Solución personalizada para equipos y franquicias',
     features: ['Todo lo de Rendimiento', 'Automatizaciones custom', 'API + integraciones', 'Contactos ilimitados', 'Onboarding dedicado', 'SLA garantizado']
   },
+]
+
+// Qué mueve el precio. Deja que el visitante se ubique solo en la escala sin
+// que nosotros publiquemos una cifra.
+const PRICE_FACTORS = [
+  ['Canales conectados', 'WhatsApp, Instagram, Facebook, correo'],
+  ['Volumen de contactos', 'y de conversaciones al mes'],
+  ['Integraciones', 'ERP, calendarios, facturación'],
+  ['Alcance de automatizaciones', 'cuántos flujos y qué tan a medida'],
 ]
 
 function Pricing() {
@@ -1638,7 +1653,12 @@ function Pricing() {
             Invierte en<br />
             <span className="font-serif italic font-semibold wg-gradient-text">crecimiento real.</span>
           </h2>
-          <p className="text-wg-muted">Consultoría gratuita incluida en todos los planes. Sin permanencia.</p>
+          <p className="text-wg-muted leading-relaxed">
+            Cada plan se cotiza según el alcance de tu operación, porque no cuesta lo
+            mismo automatizar un canal que cinco. La consultoría de 30 minutos es
+            gratuita y de ahí sale el número exacto — <span className="text-white/80">sin permanencia
+            y sin costo de salida</span>.
+          </p>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
           {plans.map((p, i) => (
@@ -1647,7 +1667,7 @@ function Pricing() {
                 ${p.highlight ? 'wg-gradient text-white ring-2 ring-wg-blue/40 shadow-2xl shadow-wg-blue/20' : 'card-surface'}`}>
               <div>
                 <div className={`font-mono text-xs mb-2 ${p.highlight ? 'text-white/60' : 'text-wg-muted'}`}>
-                  {p.highlight ? '⭐ MÁS POPULAR' : '—'}
+                  {p.tag}
                 </div>
                 <h3 className="font-bold text-2xl mb-1">{p.name}</h3>
                 <p className={`text-sm leading-relaxed ${p.highlight ? 'text-white/75' : 'text-wg-muted'}`}>{p.desc}</p>
@@ -1669,6 +1689,24 @@ function Pricing() {
               </a>
             </div>
           ))}
+        </div>
+
+        {/* Qué determina el precio */}
+        <div data-price className="mt-8 card-surface rounded-4xl px-7 py-7">
+          <p className="section-label mb-5 block">Qué determina tu precio</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-5">
+            {PRICE_FACTORS.map(([title, detail]) => (
+              <div key={title} className="flex items-start gap-2.5">
+                <div className="w-5 h-5 rounded-full bg-wg-blue/15 grid place-items-center flex-shrink-0 mt-0.5">
+                  <Check size={10} className="text-wg-blue" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold text-white/85 leading-snug">{title}</p>
+                  <p className="text-xs text-wg-muted leading-snug mt-0.5">{detail}</p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </section>
