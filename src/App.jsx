@@ -2115,8 +2115,9 @@ function WhatsAppFab() {
       target="_blank"
       rel="noopener noreferrer"
       aria-label="Escríbenos por WhatsApp"
-      /* Sits bottom-left so it never collides with the chat widget on the right. */
-      className="fixed bottom-6 left-6 z-50 grid place-items-center rounded-full shadow-lg
+      /* Bottom-right, the spot the old chat widget used to occupy — it is now the
+         only floating channel on the page. */
+      className="fixed bottom-6 right-6 z-50 grid place-items-center rounded-full shadow-lg
                  transition-transform duration-300 hover:scale-105 focus-visible:outline-none
                  focus-visible:ring-2 focus-visible:ring-white/70 focus-visible:ring-offset-2
                  focus-visible:ring-offset-[#0A0E1A]"

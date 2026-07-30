@@ -70,10 +70,16 @@
 <body>
   <div id="root"></div>
   <script type="module" src="/src/main.jsx"></script>
+
+  <!-- El widget de chat de LeadConnector se quitó a propósito: venía con el copy
+       en inglés y tapaba contenido en móvil. WhatsApp es ahora el único canal
+       flotante (ver WhatsAppFab en App.jsx). El formulario NO depende de esto:
+       postea directo al webhook de LeadConnector desde LeadForm.
+       Para restaurarlo:
   <script src="https://beta.leadconnectorhq.com/loader.js"
     data-resources-url="https://beta.leadconnectorhq.com/chat-widget/loader.js"
-    data-widget-id="6993c2810b20077773b7a6ce">
-    </script>
+    data-widget-id="6993c2810b20077773b7a6ce"></script>
+  -->
 </body>
 
 </html>
