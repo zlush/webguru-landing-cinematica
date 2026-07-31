@@ -30,7 +30,13 @@ export function Navbar() {
   }, [menuOpen])
 
   return (
-    <nav className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 transition-all duration-500 w-[calc(100%-2rem)] max-w-5xl rounded-full px-6 py-3
+    /* El radio cambia de golpe, sin transición: `transition-all` lo animaba
+       desde 9999px y, como el panel ya está alto antes de que termine, el
+       navegador escalaba el radio y la barra se veía como una elipse. Sólo
+       deben animarse color, borde y sombra — que es el morph del scroll. */
+    <nav className={`fixed top-4 left-1/2 -translate-x-1/2 z-50 w-[calc(100%-2rem)] max-w-5xl px-6 py-3
+      transition-[background-color,border-color,box-shadow] duration-500
+      ${menuOpen ? 'rounded-3xl nav-open' : 'rounded-full'}
       ${scrolled || menuOpen || !onHome
         ? 'card-surface shadow-2xl shadow-black/50'
         : 'bg-black/40 backdrop-blur-md border border-white/10 shadow-lg shadow-black/30'}`}>
@@ -69,8 +75,12 @@ export function Navbar() {
         </button>
       </div>
 
-      {/* Mobile Menu Dropdown */}
-      <div className={`md:hidden overflow-hidden transition-all duration-300 ease-in-out ${menuOpen ? 'max-h-[400px] mt-4 opacity-100' : 'max-h-0 opacity-0'}`}>
+      {/* Mobile Menu Dropdown
+          max-h iba en 400px con 447px de contenido: recortaba 47px y el botón
+          «Agenda demo» quedaba invisible en móvil. 80vh se adapta al alto real
+          de la pantalla, y overflow-y-auto garantiza que nada quede fuera de
+          alcance aunque el menú crezca. */}
+      <div className={`md:hidden transition-[max-height,opacity,margin] duration-300 ease-in-out ${menuOpen ? 'max-h-[80vh] overflow-y-auto mt-4 opacity-100' : 'max-h-0 overflow-hidden opacity-0'}`}>
         <div className="flex flex-col gap-4 py-4 border-t border-white/10">
           {NAV_LINKS.map(([l, id]) => (
             <a key={l} href={anchor(id)} onClick={() => setMenuOpen(false)} className="text-base font-medium text-white/80 hover:text-white transition-colors py-1">{l}</a>
