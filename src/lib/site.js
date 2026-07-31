@@ -28,3 +28,10 @@ export const NAV_ROUTES = [
   ['Blog', '/blog'],
   ['Calculadora', '/calculadora'],
 ]
+
+/* Portal de clientes (GoHighLevel con marca blanca).
+   Hoy vive en app.webgurux.com, que resuelve por CNAME a app.msgsndr.com.
+   Cuando app.webguru.cl esté configurado en GHL, cambiar solo esta línea: el
+   login queda entonces bajo el mismo dominio que el sitio, que es lo correcto
+   para una pantalla donde el usuario escribe su contraseña. */
+export const APP_URL = 'https://app.webgurux.com/'

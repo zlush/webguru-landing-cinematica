@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { ChevronRight, Menu, X, MapPin, Phone, Mail, Globe } from 'lucide-react'
-import { CONTACT, waHref, NAV_LINKS, NAV_ROUTES } from '../lib/site'
+import { ChevronRight, Menu, X, MapPin, Phone, Mail, Globe, LogIn } from 'lucide-react'
+import { CONTACT, waHref, NAV_LINKS, NAV_ROUTES, APP_URL } from '../lib/site'
 
 /* Shared site chrome: navbar, footer and the floating WhatsApp button.
    Lives outside App.jsx so the standalone pages can reuse it without pulling
@@ -46,7 +46,7 @@ export function Navbar() {
         </Link>
 
         {/* Desktop Links */}
-        <div className="hidden md:flex items-center gap-6 lg:gap-7">
+        <div className="hidden lg:flex items-center gap-6 xl:gap-7">
           {NAV_LINKS.map(([l, id]) => (
             <a key={l} href={anchor(id)} className="text-sm font-medium text-white/80 hover:text-white transition-colors">{l}</a>
           ))}
@@ -55,9 +55,15 @@ export function Navbar() {
           ))}
         </div>
 
-        {/* Desktop CTA */}
-        <div className="hidden md:flex items-center gap-3">
-          <a href={anchor('precios')} className="hidden md:inline-flex btn btn-outline text-sm py-2 px-5">Ver planes</a>
+        {/* Desktop CTA
+            «Acceder» es para clientes actuales y «Agenda demo» para prospectos:
+            son dos públicos distintos, por eso el login va como enlace de texto
+            y no como otro botón que compita con el CTA principal. */}
+        <div className="hidden lg:flex items-center gap-4 xl:gap-5">
+          <a href={APP_URL}
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-white/80 hover:text-white transition-colors">
+            <LogIn size={15} /> Acceder
+          </a>
           <a href={waHref('Quiero saber más de WebGuru')} target="_blank" rel="noopener noreferrer"
             className="btn btn-primary text-sm py-2 px-5">
             Agenda demo <ChevronRight size={14} />
@@ -66,7 +72,7 @@ export function Navbar() {
 
         {/* Mobile Toggle */}
         <button
-          className="md:hidden text-white p-3 -mr-1 grid place-items-center min-w-[44px] min-h-[44px]"
+          className="lg:hidden text-white p-3 -mr-1 grid place-items-center min-w-[44px] min-h-[44px]"
           onClick={() => setMenuOpen(!menuOpen)}
           aria-label={menuOpen ? 'Cerrar menú' : 'Abrir menú'}
           aria-expanded={menuOpen}
@@ -80,7 +86,7 @@ export function Navbar() {
           «Agenda demo» quedaba invisible en móvil. 80vh se adapta al alto real
           de la pantalla, y overflow-y-auto garantiza que nada quede fuera de
           alcance aunque el menú crezca. */}
-      <div className={`md:hidden transition-[max-height,opacity,margin] duration-300 ease-in-out ${menuOpen ? 'max-h-[80vh] overflow-y-auto mt-4 opacity-100' : 'max-h-0 overflow-hidden opacity-0'}`}>
+      <div className={`lg:hidden transition-[max-height,opacity,margin] duration-300 ease-in-out ${menuOpen ? 'max-h-[80vh] overflow-y-auto mt-4 opacity-100' : 'max-h-0 overflow-hidden opacity-0'}`}>
         <div className="flex flex-col gap-4 py-4 border-t border-white/10">
           {NAV_LINKS.map(([l, id]) => (
             <a key={l} href={anchor(id)} onClick={() => setMenuOpen(false)} className="text-base font-medium text-white/80 hover:text-white transition-colors py-1">{l}</a>
@@ -89,7 +95,10 @@ export function Navbar() {
             <Link key={l} to={to} onClick={() => setMenuOpen(false)} className="text-base font-medium text-white/80 hover:text-white transition-colors py-1">{l}</Link>
           ))}
           <div className="flex flex-col gap-3 mt-4">
-            <a href={anchor('precios')} onClick={() => setMenuOpen(false)} className="btn btn-outline text-sm py-3 justify-center">Ver planes</a>
+            <a href={APP_URL} onClick={() => setMenuOpen(false)}
+              className="btn btn-outline text-sm py-3 justify-center">
+              <LogIn size={15} /> Acceder a mi cuenta
+            </a>
             <a href={waHref('Quiero saber más de WebGuru')} target="_blank" rel="noopener noreferrer"
               onClick={() => setMenuOpen(false)} className="btn btn-primary text-sm py-3 justify-center">
               Agenda demo <ChevronRight size={14} />
@@ -119,6 +128,7 @@ export function Footer() {
     ['Calculadora de rentabilidad', '/calculadora'],
   ]
   const empresa = [
+    ['Acceder a mi cuenta', APP_URL],
     ['Casos de éxito', anchor('testimonios')],
     ['Sobre nosotros', '/sobre-nosotros'],
     ['Blog', '/blog'],
@@ -127,6 +137,7 @@ export function Footer() {
     ['Privacidad', '/privacidad'],
   ]
 
+  // Rutas internas usan <Link>; anclas y dominios externos, <a>.
   const isRoute = href => href.startsWith('/') && !href.startsWith('/#')
 
   return (
