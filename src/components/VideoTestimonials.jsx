@@ -15,22 +15,25 @@ import { useJsonLd, SITE_URL } from '../hooks/useSeo'
 
 const VIDEOS = [
   {
+    type: 'vimeo',
     id: '1118232415',
     name: 'Esteban Monsalve',
-    company: 'Dentyart',
+    company: 'Clínica Cieo',
     thumb: '/testimonios/edixon.webp',
     duration: '2:08',
     seconds: 128,
   },
   {
+    type: 'vimeo',
     id: '1118230851',
     name: 'Juan Carlos Jiménez',
-    company: 'Dentyart',
+    company: 'Jesed Salud',
     thumb: '/testimonios/juan-jimenez.webp',
     duration: '2:05',
     seconds: 125,
   },
   {
+    type: 'vimeo',
     id: '1118229347',
     name: 'Liliana Martínez',
     company: 'Dentyart',
@@ -39,12 +42,28 @@ const VIDEOS = [
     seconds: 82,
   },
   {
+    type: 'vimeo',
     id: '1045868145',
-    name: 'Gunther Subs',
-    company: 'Cliente WebGuru',
+    name: 'Gunther Rochefort',
+    company: 'Clínica Rochefort',
     thumb: '/testimonios/gunther-subs.webp',
     duration: '0:45',
     seconds: 45,
+  },
+  {
+    // Este llegó como MP4 suelto, no como Vimeo. Se sirve desde el propio sitio:
+    // el original en el CDN de GoHighLevel pesaba 10,2 MB a 60 fps para una
+    // persona hablando. Reencodeado a 30 fps quedó en 3,3 MB, un 68% menos, y
+    // sin reproductor de terceros de por medio.
+    type: 'mp4',
+    id: 'apolo',
+    src: '/testimonios/apolo.mp4',
+    name: 'Clínica Apolo',
+    company: 'Trasplante capilar y estética',
+    thumb: '/testimonios/apolo.webp',
+    duration: '1:09',
+    seconds: 69,
+    wide: true,
   },
 ]
 
@@ -55,15 +74,30 @@ function VideoCard({ v }) {
 
   if (playing) {
     return (
-      <div className="rounded-3xl overflow-hidden card-surface" style={{ aspectRatio: '16 / 9' }}>
-        <iframe
-          src={`https://player.vimeo.com/video/${v.id}?autoplay=1&title=0&byline=0&portrait=0`}
-          title={`Testimonio de ${v.name}`}
-          allow="autoplay; fullscreen; picture-in-picture"
-          allowFullScreen
-          className="w-full h-full"
-          style={{ border: 0 }}
-        />
+      <div className={`rounded-3xl overflow-hidden card-surface ${v.wide ? 'sm:col-span-2' : ''}`}
+        style={{ aspectRatio: '16 / 9' }}>
+        {v.type === 'mp4' ? (
+          /* El video es vertical (464x832): object-contain evita recortarle la
+             cara para encajarlo en un recuadro 16:9. */
+          <video
+            src={v.src}
+            poster={v.thumb}
+            controls
+            autoPlay
+            playsInline
+            preload="metadata"
+            className="w-full h-full object-contain bg-black"
+          />
+        ) : (
+          <iframe
+            src={`https://player.vimeo.com/video/${v.id}?autoplay=1&title=0&byline=0&portrait=0`}
+            title={`Testimonio de ${v.name}`}
+            allow="autoplay; fullscreen; picture-in-picture"
+            allowFullScreen
+            className="w-full h-full"
+            style={{ border: 0 }}
+          />
+        )}
       </div>
     )
   }
@@ -73,9 +107,10 @@ function VideoCard({ v }) {
       type="button"
       onClick={() => setPlaying(true)}
       aria-label={`Reproducir testimonio de ${v.name}, ${v.company}. Duración ${v.duration}`}
-      className="group relative block w-full rounded-3xl overflow-hidden card-surface text-left
+      className={`group relative block w-full rounded-3xl overflow-hidden card-surface text-left
                  transition-transform duration-300 hover:-translate-y-1
-                 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wg-blue"
+                 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wg-blue
+                 ${v.wide ? 'sm:col-span-2' : ''}`}
       style={{ aspectRatio: '16 / 9' }}
     >
       <img
@@ -130,7 +165,9 @@ export default function VideoTestimonials() {
     thumbnailUrl: `${SITE_URL}${v.thumb}`,
     duration: iso(v.seconds),
     uploadDate: '2025-09-12',
-    embedUrl: `https://player.vimeo.com/video/${v.id}`,
+    ...(v.type === 'mp4'
+      ? { contentUrl: `${SITE_URL}${v.src}` }
+      : { embedUrl: `https://player.vimeo.com/video/${v.id}` }),
     publisher: {
       '@type': 'Organization',
       name: 'WebGuru',
