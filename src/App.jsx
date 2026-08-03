@@ -4,6 +4,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { Link } from 'react-router-dom'
 import { Navbar, Footer, WhatsAppFab } from './components/Chrome'
 import VideoTestimonials from './components/VideoTestimonials'
+import Aurora from './components/Aurora'
 import { ARTICLES } from './content/articles'
 import { useSeo, useJsonLd, SITE_URL } from './hooks/useSeo'
 import {
@@ -150,11 +151,13 @@ function HeroInbox() {
 function Hero() {
   return (
     <section className="relative min-h-screen flex items-end md:items-center overflow-hidden">
-      {/* Background: pure CSS, nothing to download */}
+      {/* Fondo. El degradado CSS es la base y se ve siempre; la aurora WebGL se
+          suma encima solo en desktop y después del primer pintado. */}
       <div className="absolute inset-0 z-0 bg-[#060910]">
         <div className="absolute inset-0" style={{
           background: 'radial-gradient(ellipse 70% 60% at 75% 40%, rgba(6,147,227,0.10), transparent 65%), radial-gradient(ellipse 55% 50% at 88% 70%, rgba(155,81,224,0.12), transparent 70%)',
         }} />
+        <Aurora />
         <div className="absolute inset-x-0 bottom-0 h-40 pointer-events-none"
           style={{ background: 'linear-gradient(to top, #0A0E1A 0%, transparent 100%)' }} />
       </div>
