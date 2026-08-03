@@ -66,6 +66,13 @@ export function useSeo({ title, description, path, image = DEFAULT_OG, noindex =
 export function useJsonLd(data, id) {
   useEffect(() => {
     if (!data) return
+    // El HTML prerenderizado ya trae este bloque inyectado en el <head>. Sin
+    // limpiar primero, React añadía un segundo idéntico al montar y la página
+    // terminaba declarando dos veces el mismo FAQPage o BlogPosting.
+    document.head
+      .querySelectorAll(`script[type="application/ld+json"][data-seo-id="${id}"]`)
+      .forEach(n => n.remove())
+
     const el = document.createElement('script')
     el.type = 'application/ld+json'
     el.dataset.seoId = id

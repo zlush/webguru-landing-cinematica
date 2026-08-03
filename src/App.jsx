@@ -3,6 +3,7 @@ import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { Link } from 'react-router-dom'
 import { Navbar, Footer, WhatsAppFab } from './components/Chrome'
+import VideoTestimonials from './components/VideoTestimonials'
 import { ARTICLES } from './content/articles'
 import { useSeo, useJsonLd, SITE_URL } from './hooks/useSeo'
 import {
@@ -2143,6 +2144,7 @@ export default function App() {
       <Features />
       <Philosophy />
       <Protocol />
+      <VideoTestimonials />
       <Testimonials />
       <Pricing />
       <Resources />
