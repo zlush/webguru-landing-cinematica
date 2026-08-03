@@ -63,9 +63,15 @@ const VIDEOS = [
     thumb: '/testimonios/apolo.webp',
     duration: '1:09',
     seconds: 69,
-    wide: true,
+    // Son cinco tarjetas en una grilla de dos columnas, así que la última queda
+    // sola. Ocupa las dos columnas SOLO para poder centrarse, pero se limita al
+    // ancho de una: con col-span-2 a secas, el aspect-ratio 16/9 le duplicaba
+    // también el alto y quedaba del doble de tamaño que el resto.
+    centered: true,
   },
 ]
+
+const SPAN = 'sm:col-span-2 sm:mx-auto sm:w-[calc(50%-0.625rem)]'
 
 const iso = s => `PT${Math.floor(s / 60)}M${s % 60}S`
 
@@ -74,7 +80,7 @@ function VideoCard({ v }) {
 
   if (playing) {
     return (
-      <div className={`rounded-3xl overflow-hidden card-surface ${v.wide ? 'sm:col-span-2' : ''}`}
+      <div className={`rounded-3xl overflow-hidden card-surface ${v.centered ? SPAN : ''}`}
         style={{ aspectRatio: '16 / 9' }}>
         {v.type === 'mp4' ? (
           /* El video es vertical (464x832): object-contain evita recortarle la
@@ -110,7 +116,7 @@ function VideoCard({ v }) {
       className={`group relative block w-full rounded-3xl overflow-hidden card-surface text-left
                  transition-transform duration-300 hover:-translate-y-1
                  focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-wg-blue
-                 ${v.wide ? 'sm:col-span-2' : ''}`}
+                 ${v.centered ? SPAN : ''}`}
       style={{ aspectRatio: '16 / 9' }}
     >
       <img
