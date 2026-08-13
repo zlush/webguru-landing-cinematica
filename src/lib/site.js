@@ -14,19 +14,23 @@ const WA_MESSAGE = 'Hola, vengo desde la web y quiero saber más sobre WebGuru.'
 export const waHref = (msg = WA_MESSAGE) =>
   `https://wa.me/${CONTACT.whatsapp}?text=${encodeURIComponent(msg)}`
 
+/* Menú corto a propósito. Proceso y Precios salieron de acá pero siguen
+   existiendo como secciones de la home: el visitante llega igual bajando, y
+   el navbar deja de competir consigo mismo por la atención. Los anclas se
+   mantienen vivos para los enlaces del footer y los que ya estén compartidos. */
 export const NAV_LINKS = [
   ['Plataforma', 'plataforma'],
-  ['Proceso', 'proceso'],
-  ['Precios', 'precios'],
   ['Contacto', 'contacto'],
 ]
 
-/* Rutas propias del menú (no son anclas de la home). La calculadora era una
-   página huérfana: sin un solo enlace entrante, Google la rastrea mal y ningún
-   visitante la encuentra. */
+/* Rutas propias del menú (no son anclas de la home).
+
+   La calculadora salió del navbar por decisión de producto. Sigue existiendo
+   en /calculadora y conserva enlaces entrantes desde el footer y desde su
+   sección en la home, que es lo que la mantiene rastreable: sin ningún enlace
+   apuntándole, Google la trataría como página huérfana. */
 export const NAV_ROUTES = [
   ['Blog', '/blog'],
-  ['Calculadora', '/calculadora'],
 ]
 
 /* Páginas por rubro. Van en un desplegable propio y no en NAV_ROUTES porque

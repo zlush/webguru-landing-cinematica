@@ -154,19 +154,26 @@ export default function Clinicas() {
               </div>
             </div>
 
-            {/* La ilustración de marca ya existía y es la misma que presenta el
-                producto en la home: reutilizarla mantiene la identidad y no suma
-                ni un byte de descarga nueva al sitio. */}
-            <div className="relative hidden lg:block">
+            {/* Se muestra también en móvil, que es de donde llega la mayoría del
+                tráfico: esconderla ahí dejaba sin la única imagen de contexto
+                clínico justo a quien más la necesita para reconocerse. El original
+                pesaba 2 MB en PNG; acá van 58 KB en escritorio y 27 KB en móvil.
+
+                Es el elemento LCP de esta página, de ahí el fetchpriority alto y
+                las dimensiones explícitas, que evitan el salto de maquetación
+                mientras carga. */}
+            <div className="relative">
               <div className="absolute inset-0 -m-8 rounded-full opacity-30 blur-3xl"
                 style={{ background: 'radial-gradient(circle, rgba(123,97,255,0.5), transparent 70%)' }}
                 aria-hidden="true" />
               <img
-                src="/guru-cartoon.webp"
-                alt="Asistente de WebGuru presentando la bandeja de conversaciones de una clínica"
-                className="relative w-full max-w-md mx-auto"
-                width="480"
-                height="480"
+                src="/rubros/clinicas-hero.webp"
+                srcSet="/rubros/clinicas-hero-560.webp 560w, /rubros/clinicas-hero.webp 900w"
+                sizes="(min-width: 1024px) 448px, 100vw"
+                alt="Equipo de una clínica dental mostrando la aplicación de WebGuru en un teléfono"
+                className="relative w-full max-w-md mx-auto rounded-4xl"
+                width="900"
+                height="900"
                 loading="eager"
                 fetchpriority="high"
               />

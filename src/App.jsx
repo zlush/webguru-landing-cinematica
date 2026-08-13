@@ -1926,6 +1926,47 @@ function ContactFormSection() {
 /* ──────────────────────────────────────────
    CTA FINAL
 ────────────────────────────────────────── */
+/* ──────────────────────────────────────────
+   CALCULADORA — invitación
+────────────────────────────────────────── */
+/* La calculadora salió del navbar, así que ésta pasa a ser su vía de entrada
+   principal desde la home. Va antes de Precios a propósito: el visitante llega
+   a la tabla de planes habiendo puesto sus propios números, no los nuestros.
+
+   Es un enlace y no la calculadora incrustada porque ese componente arrastra
+   recharts, y meterlo acá lo sumaría al bundle inicial de una home que ya
+   venimos peleando por su LCP. */
+function CalculatorCTA() {
+  return (
+    <section id="calculadora" className="py-24 px-6 md:px-12">
+      <div className="max-w-4xl mx-auto card-surface rounded-4xl p-10 md:p-14 relative overflow-hidden">
+        <div className="absolute -right-24 -top-24 w-72 h-72 rounded-full opacity-40 blur-3xl pointer-events-none"
+          style={{ background: 'radial-gradient(circle, rgba(6,147,227,0.45), transparent 70%)' }}
+          aria-hidden="true" />
+        <div className="relative z-10 md:flex md:items-center md:gap-12">
+          <div className="md:flex-1">
+            <span className="section-label mb-4 block">Calculadora de rentabilidad</span>
+            <h2 className="font-sans font-extrabold tracking-tight mb-4"
+              style={{ fontSize: 'clamp(1.6rem, 3.5vw, 2.25rem)', lineHeight: 1.1 }}>
+              ¿Cuánto te cuesta<br />
+              <span className="wg-gradient-text font-serif italic font-normal">una hora vacía?</span>
+            </h2>
+            <p className="text-wg-muted leading-relaxed mb-8 md:mb-0 max-w-md">
+              Pon tus leads, tu ticket promedio y tu tasa de conversión. En un minuto
+              ves qué pasa con tu margen si respondes más rápido y pierdes menos citas.
+            </p>
+          </div>
+          <div className="md:shrink-0">
+            <Link to="/calculadora" className="btn btn-primary inline-flex">
+              Calcular ahora <ChevronRight size={15} />
+            </Link>
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
 function CTAStrip() {
   return (
     <section id="demo" className="py-32 px-6 md:px-12 text-center relative overflow-hidden">
@@ -2149,6 +2190,7 @@ export default function App() {
       <Protocol />
       <VideoTestimonials />
       <Testimonials />
+      <CalculatorCTA />
       <Pricing />
       <Resources />
       <FAQ />
