@@ -65,6 +65,28 @@ const soluciones = [
   },
 ]
 
+/* Los 19 logos de la home son de todos los rubros; acá van sólo los 12 de
+   salud, identificados uno por uno mirando los archivos. Mostrar la lista
+   completa en una página de clínicas diluiría justo lo que la hace creíble:
+   que doce de nuestros clientes son del rubro de quien está leyendo.
+
+   A diferencia de la home, acá llevan alt real. Ahí el marquee es decorativo y
+   el alt vacío es correcto; en esta página los nombres son el argumento. */
+const LOGOS_CLINICAS = [
+  [3, 'Dentyart'],
+  [4, 'Odonthos'],
+  [6, 'Odontología de Gales'],
+  [8, 'Apolo'],
+  [11, 'Dr. Günther Rochefort'],
+  [13, 'Terapré Med Clinic'],
+  [14, 'Clínica Jesed Salud'],
+  [15, 'Clínica Dental Zoe'],
+  [16, 'Clínica Baquio'],
+  [17, 'Dispensario Nacional Medcorp'],
+  [18, 'CIEO Centro Integral de Especialidades Odontológicas'],
+  [19, 'Clínica S&O'],
+]
+
 /* Se dice "nos integramos con" y no "somos partner oficial de", igual que en
    /partners: la integración técnica la podemos sostener, un estatus de partner
    con cada proveedor no. */
@@ -187,6 +209,33 @@ export default function Clinicas() {
                 loading="eager"
                 fetchpriority="high"
               />
+            </div>
+          </div>
+        </section>
+
+        {/* ── Logos de clientes del rubro ── */}
+        <section className="py-10"
+          style={{ borderTop: '1px solid rgba(255,255,255,0.06)', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+          <div className="max-w-6xl mx-auto px-6 md:px-12">
+            <span className="section-label block mb-8">
+              Clínicas y centros de salud que ya trabajan con WebGuru
+            </span>
+            {/* Grilla estática y no el marquee de la home: doce logos entran
+                completos en pantalla, y acá el visitante los está leyendo para
+                buscar a alguien parecido a él, no mirándolos pasar. */}
+            <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-x-8 gap-y-9 items-center">
+              {LOGOS_CLINICAS.map(([n, name]) => (
+                <img
+                  key={n}
+                  src={`/logos/${n}.webp`}
+                  alt={name}
+                  title={name}
+                  loading="lazy"
+                  decoding="async"
+                  className="h-8 md:h-9 w-auto max-w-full object-contain mx-auto transition-opacity duration-300 hover:opacity-75"
+                  style={{ filter: 'brightness(0) invert(1)', opacity: 0.4 }}
+                />
+              ))}
             </div>
           </div>
         </section>
