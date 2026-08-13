@@ -36,6 +36,18 @@ const PAGES = [
     l1: 'Tu agenda llena,',
     l2: 'sin perseguir pacientes.',
   },
+  {
+    slug: 'inmobiliarias',
+    label: 'Corredoras e inmobiliarias',
+    l1: 'El primero que responde',
+    l2: 'se queda con la visita.',
+  },
+  {
+    slug: 'automotriz',
+    label: 'Automotoras y talleres',
+    l1: 'Cotiza, agenda y recuerda',
+    l2: 'sin ocupar a tu equipo.',
+  },
 ]
 
 const html = ({ label, l1, l2 }) => `<!doctype html><html lang="es"><head><meta charset="utf-8">

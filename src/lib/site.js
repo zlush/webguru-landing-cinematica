@@ -49,6 +49,18 @@ export const NICHE_ROUTES = [
     to: '/clinicas',
     desc: 'Agenda llena, menos no-shows y respuesta inmediata en WhatsApp.',
   },
+  {
+    label: 'Corredoras e inmobiliarias',
+    short: 'Inmobiliario',
+    to: '/inmobiliarias',
+    desc: 'Leads calificados, visitas confirmadas y seguimiento que no se corta.',
+  },
+  {
+    label: 'Automotoras y talleres',
+    short: 'Automotriz',
+    to: '/automotriz',
+    desc: 'Cotizaciones al instante, test drives y agenda de taller siempre llena.',
+  },
 ]
 
 /* Portal de clientes (GoHighLevel con marca blanca).

@@ -23,6 +23,8 @@ const STATIC = [
   // Página por rubro: es de intención comercial alta, por encima de las
   // institucionales y sólo por debajo de la home.
   { path: '/clinicas', changefreq: 'monthly', priority: '0.9' },
+  { path: '/inmobiliarias', changefreq: 'monthly', priority: '0.9' },
+  { path: '/automotriz', changefreq: 'monthly', priority: '0.9' },
   { path: '/sobre-nosotros', changefreq: 'monthly', priority: '0.7' },
   { path: '/partners', changefreq: 'monthly', priority: '0.7' },
   { path: '/calculadora', changefreq: 'monthly', priority: '0.6' },

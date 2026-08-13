@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom'
 import {
   ChevronRight, MessageSquare, CalendarCheck, Clock, UserPlus,
-  PhoneOff, CalendarX, MessageCircleOff, TrendingDown,
+  PhoneOff, CalendarX, MessageCircleOff, TrendingDown, Plug,
 } from 'lucide-react'
 import { Navbar, Footer, WhatsAppFab } from '../components/Chrome'
 import VideoTestimonials from '../components/VideoTestimonials'
@@ -63,6 +63,16 @@ const soluciones = [
     title: 'Reactivación de pacientes inactivos',
     text: 'Campañas a la base que ya tienes: controles pendientes, tratamientos incompletos, pacientes que no vuelven hace seis meses.',
   },
+]
+
+/* Se dice "nos integramos con" y no "somos partner oficial de", igual que en
+   /partners: la integración técnica la podemos sostener, un estatus de partner
+   con cada proveedor no. */
+const integraciones = [
+  { name: 'Dentalink', text: 'Software de gestión dental. Sincronizamos fichas, agenda y estados de tratamiento.' },
+  { name: 'Medilink', text: 'Gestión clínica y médica. El paciente que agenda por WhatsApp queda cargado en tu sistema.' },
+  { name: 'Reservo', text: 'Reservas online. Las horas tomadas desde el chat respetan la misma disponibilidad.' },
+  { name: 'Google y Outlook Calendar', text: 'Para equipos que llevan la agenda de cada profesional por calendario.' },
 ]
 
 const faq = [
@@ -240,6 +250,38 @@ export default function Clinicas() {
                 )
               })}
             </div>
+          </div>
+        </section>
+
+        {/* ── Integraciones ── */}
+        <section className="px-6 md:px-12 py-20" style={{ background: 'rgba(6,9,16,0.6)' }}>
+          <div className="max-w-5xl mx-auto">
+            <span className="section-label mb-4 block">Integraciones</span>
+            <h2 className="font-sans font-extrabold tracking-tight mb-4"
+              style={{ fontSize: 'clamp(1.6rem, 3.5vw, 2.25rem)', lineHeight: 1.1 }}>
+              No cambies el software de tu clínica.
+            </h2>
+            <p className="text-wg-muted leading-relaxed max-w-2xl mb-11">
+              Nos conectamos con el sistema que tu equipo ya sabe usar. WebGuru
+              opera la capa comercial —conversaciones, agendamiento y seguimiento—
+              y tu software clínico sigue siendo la ficha del paciente.
+            </p>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {integraciones.map((it) => (
+                <div key={it.name} className="card-surface rounded-4xl p-6">
+                  <div className="flex items-center gap-2.5 mb-2">
+                    <Plug size={16} className="text-wg-blue shrink-0" />
+                    <h3 className="font-sans font-bold text-base">{it.name}</h3>
+                  </div>
+                  <p className="text-sm text-wg-muted leading-relaxed">{it.text}</p>
+                </div>
+              ))}
+            </div>
+            <p className="text-sm text-wg-muted leading-relaxed mt-8">
+              ¿Usas otro sistema? La mayoría expone API y lo revisamos en la
+              consultoría inicial. Si no la expone, WebGuru funciona igual por
+              delante y sincronizamos lo que el sistema permita.
+            </p>
           </div>
         </section>
 

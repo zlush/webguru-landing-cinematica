@@ -39,6 +39,8 @@ const PORT = 5199
 const ROUTES = [
   '/',
   '/clinicas',
+  '/inmobiliarias',
+  '/automotriz',
   '/sobre-nosotros',
   '/partners',
   '/terminos',
