@@ -29,6 +29,24 @@ export const NAV_ROUTES = [
   ['Calculadora', '/calculadora'],
 ]
 
+/* Páginas por rubro. Van en un desplegable propio y no en NAV_ROUTES porque
+   son páginas de aterrizaje comerciales: cada una habla el idioma de un sector
+   concreto, con su vocabulario, sus objeciones y sus números. Mezclarlas con
+   Blog y Calculadora las escondería.
+
+   La lista está pensada para crecer. Al sumar un rubro hay que tocar, además
+   de este array: la ruta en main.jsx, ROUTES en scripts/prerender.mjs y STATIC
+   en scripts/sitemap.mjs. Si algún día son más de cinco, conviene invertir la
+   dependencia y que esos tres lean de acá. */
+export const NICHE_ROUTES = [
+  {
+    label: 'Clínicas dentales y estéticas',
+    short: 'Clínicas',
+    to: '/clinicas',
+    desc: 'Agenda llena, menos no-shows y respuesta inmediata en WhatsApp.',
+  },
+]
+
 /* Portal de clientes (GoHighLevel con marca blanca).
    Hoy vive en app.webgurux.com, que resuelve por CNAME a app.msgsndr.com.
    Cuando app.webguru.cl esté configurado en GHL, cambiar solo esta línea: el

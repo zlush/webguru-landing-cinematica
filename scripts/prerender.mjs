@@ -38,6 +38,7 @@ const PORT = 5199
 // that needs to rank, and its chart library is the least snapshot-friendly part.
 const ROUTES = [
   '/',
+  '/clinicas',
   '/sobre-nosotros',
   '/partners',
   '/terminos',

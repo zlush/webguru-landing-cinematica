@@ -20,6 +20,9 @@ const SITE = 'https://webguru.cl'
 // propias, aunque el prerender la omita por su librería de gráficos.
 const STATIC = [
   { path: '/', changefreq: 'weekly', priority: '1.0' },
+  // Página por rubro: es de intención comercial alta, por encima de las
+  // institucionales y sólo por debajo de la home.
+  { path: '/clinicas', changefreq: 'monthly', priority: '0.9' },
   { path: '/sobre-nosotros', changefreq: 'monthly', priority: '0.7' },
   { path: '/partners', changefreq: 'monthly', priority: '0.7' },
   { path: '/calculadora', changefreq: 'monthly', priority: '0.6' },

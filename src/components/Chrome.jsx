@@ -1,11 +1,73 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link, useLocation } from 'react-router-dom'
-import { ChevronRight, Menu, X, MapPin, Phone, Mail, Globe, LogIn } from 'lucide-react'
-import { CONTACT, waHref, NAV_LINKS, NAV_ROUTES, APP_URL } from '../lib/site'
+import { ChevronRight, ChevronDown, Menu, X, MapPin, Phone, Mail, Globe, LogIn } from 'lucide-react'
+import { CONTACT, waHref, NAV_LINKS, NAV_ROUTES, NICHE_ROUTES, APP_URL } from '../lib/site'
 
 /* Shared site chrome: navbar, footer and the floating WhatsApp button.
    Lives outside App.jsx so the standalone pages can reuse it without pulling
    the whole landing page in. */
+
+/* Desplegable de rubros (escritorio).
+
+   Abre por clic y no por hover: en un navbar flotante el hover dispara el panel
+   al pasar de largo hacia el CTA, y además el hover no existe en táctil. El
+   clic funciona igual en los tres casos. */
+function NicheMenu({ pathname }) {
+  const [open, setOpen] = useState(false)
+  const ref = useRef(null)
+  const active = NICHE_ROUTES.some(n => pathname.startsWith(n.to))
+
+  /* El panel se cierra al navegar por remontaje: quien lo usa le pasa
+     key={pathname}. Hacerlo con un setOpen(false) dentro de un efecto
+     encadenaba un render extra en cada cambio de ruta. */
+
+  useEffect(() => {
+    if (!open) return
+    const onDown = e => { if (ref.current && !ref.current.contains(e.target)) setOpen(false) }
+    const onKey = e => { if (e.key === 'Escape') setOpen(false) }
+    document.addEventListener('mousedown', onDown)
+    document.addEventListener('keydown', onKey)
+    return () => {
+      document.removeEventListener('mousedown', onDown)
+      document.removeEventListener('keydown', onKey)
+    }
+  }, [open])
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        type="button"
+        onClick={() => setOpen(o => !o)}
+        aria-expanded={open}
+        aria-haspopup="true"
+        className={`inline-flex items-center gap-1 text-sm font-medium transition-colors
+          ${active || open ? 'text-white' : 'text-white/80 hover:text-white'}`}
+      >
+        Rubros
+        <ChevronDown size={14} className={`transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
+      </button>
+
+      {open && (
+        <div
+          className="absolute left-1/2 -translate-x-1/2 top-full mt-4 w-72 card-surface rounded-2xl
+            shadow-2xl shadow-black/50 p-2 z-50"
+        >
+          {NICHE_ROUTES.map(n => (
+            <Link
+              key={n.to}
+              to={n.to}
+              onClick={() => setOpen(false)}
+              className="block rounded-xl px-3 py-2.5 hover:bg-white/5 transition-colors"
+            >
+              <span className="block text-sm font-medium text-white">{n.label}</span>
+              <span className="block text-xs text-white/60 mt-0.5 leading-snug">{n.desc}</span>
+            </Link>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
 
 /* ──────────────────────────────────────────
    NAVBAR
@@ -50,6 +112,7 @@ export function Navbar() {
           {NAV_LINKS.map(([l, id]) => (
             <a key={l} href={anchor(id)} className="text-sm font-medium text-white/80 hover:text-white transition-colors">{l}</a>
           ))}
+          <NicheMenu key={pathname} pathname={pathname} />
           {NAV_ROUTES.map(([l, to]) => (
             <Link key={l} to={to} className="text-sm font-medium text-white/80 hover:text-white transition-colors">{l}</Link>
           ))}
@@ -94,6 +157,25 @@ export function Navbar() {
           {NAV_ROUTES.map(([l, to]) => (
             <Link key={l} to={to} onClick={() => setMenuOpen(false)} className="text-base font-medium text-white/80 hover:text-white transition-colors py-1">{l}</Link>
           ))}
+
+          {/* En móvil los rubros van desplegados, no dentro de otro acordeón:
+              son pocos, y un segundo nivel de toque para llegar a una página
+              comercial es fricción que no compra nada. */}
+          <div className="pt-3 border-t border-white/10">
+            <span className="block text-xs font-medium uppercase tracking-wider text-white/40 mb-2">
+              Rubros
+            </span>
+            {NICHE_ROUTES.map(n => (
+              <Link
+                key={n.to}
+                to={n.to}
+                onClick={() => setMenuOpen(false)}
+                className="block text-base font-medium text-white/80 hover:text-white transition-colors py-1"
+              >
+                {n.label}
+              </Link>
+            ))}
+          </div>
           <div className="flex flex-col gap-3 mt-4">
             <a href={APP_URL} onClick={() => setMenuOpen(false)}
               className="btn btn-outline text-sm py-3 justify-center">
@@ -126,6 +208,7 @@ export function Footer() {
     ['Sitios Web & Landings', anchor('features')],
     ['Automatizaciones', anchor('features')],
     ['Calculadora de rentabilidad', '/calculadora'],
+    ...NICHE_ROUTES.map(n => [n.label, n.to]),
   ]
   const empresa = [
     ['Acceder a mi cuenta', APP_URL],
