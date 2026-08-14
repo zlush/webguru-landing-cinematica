@@ -5,6 +5,8 @@ import {
 } from 'lucide-react'
 import { Navbar, Footer, WhatsAppFab } from '../components/Chrome'
 import VideoTestimonials from '../components/VideoTestimonials'
+import { StatBand, ChatDemo, Implementacion, CasoDeExito } from '../components/RubroSections'
+import { CASO_CLINICAS } from '../content/casos'
 import { waHref } from '../lib/site'
 import { useSeo, useJsonLd, breadcrumb, SITE_URL } from '../hooks/useSeo'
 
@@ -18,6 +20,38 @@ import { useSeo, useJsonLd, breadcrumb, SITE_URL } from '../hooks/useSeo'
    Los cinco testimonios del sitio son de clínicas y centros de salud, así que
    la prueba social se reutiliza tal cual: es el activo más fuerte que tenemos
    para este rubro y no hacía falta grabar nada nuevo. */
+
+/* Cifras de industria, no resultados nuestros, y por eso cada una lleva su
+   fuente enlazada. La inasistencia odontológica está medida en Chile, que es
+   donde está el lector; la de velocidad de respuesta es el estudio clásico de
+   HBR sobre 2.241 empresas y aplica a cualquier rubro que reciba consultas.
+
+   Nuestros propios números van en <CasoDeExito />, que se dice aparte y sólo
+   cuando el cliente autoriza. Mezclar ambas cosas en la misma banda haría
+   pasar dato de industria por resultado propio. */
+const REVISION_INASISTENCIA =
+  'https://www.scielo.org.pe/scielo.php?script=sci_arttext&pid=S1019-43552024000100063'
+
+const stats = [
+  {
+    n: '24%',
+    text: 'De inasistencia a citas odontológicas, medida en atención primaria en Chile.',
+    fuente: 'Garrido et al., 2020',
+    href: REVISION_INASISTENCIA,
+  },
+  {
+    n: '23%',
+    text: 'De las horas reservadas se cancelan antes de la cita, sobre 58.622 citas auditadas.',
+    fuente: 'Storrs et al., J Dent Educ, 2016',
+    href: REVISION_INASISTENCIA,
+  },
+  {
+    n: '7×',
+    text: 'Más probable calificar a quien consulta si respondes dentro de la primera hora.',
+    fuente: 'Harvard Business Review, 2011',
+    href: 'https://hbr.org/2011/03/the-short-life-of-online-sales-leads',
+  },
+]
 
 const dolores = [
   {
@@ -62,6 +96,42 @@ const soluciones = [
     icon: UserPlus,
     title: 'Reactivación de pacientes inactivos',
     text: 'Campañas a la base que ya tienes: controles pendientes, tratamientos incompletos, pacientes que no vuelven hace seis meses.',
+  },
+]
+
+/* Un sábado a las nueve y media de la noche: es el escenario donde la clínica
+   pierde, y por eso el mockup se ambienta ahí y no en un martes a las once. */
+const chat = [
+  { de: 'paciente', hora: '21:38', texto: 'Hola, ¿cuánto sale una limpieza dental? ¿Tienen hora esta semana?' },
+  { de: 'bot', hora: '21:38', texto: 'Hola. La limpieza incluye evaluación previa y sale $35.000.\n\nMe quedan estas horas esta semana:\n· Martes 16:30 — Dra. Soto\n· Miércoles 11:00 — Dr. Vera\n· Jueves 18:45 — Dra. Soto' },
+  { de: 'paciente', hora: '21:40', texto: 'El martes a las 16:30' },
+  { de: 'bot', hora: '21:40', texto: 'Listo, quedaste agendada para el martes a las 16:30 con la Dra. Soto. Te confirmo el lunes por acá mismo.\n\n¿Es tu primera vez en la clínica?' },
+  { de: 'paciente', hora: '21:41', texto: 'Sí, primera vez' },
+]
+
+const fichaChat = {
+  titulo: 'Ficha creada en recepción',
+  filas: [
+    ['Paciente', 'Nuevo · primera consulta'],
+    ['Tratamiento', 'Limpieza + evaluación'],
+    ['Hora', 'Martes 16:30 · Dra. Soto'],
+    ['Origen', 'WhatsApp · fuera de horario'],
+    ['Recordatorio', 'Programado · lunes 10:00'],
+  ],
+}
+
+const pasos = [
+  {
+    title: 'Conectamos',
+    text: 'Tu software clínico, el WhatsApp de la clínica y el Instagram quedan en una sola bandeja, y la agenda de cada profesional sincronizada.',
+  },
+  {
+    title: 'Entrenamos',
+    text: 'Cargamos tratamientos, precios, convenios y horarios. Acá se define contigo la frontera: qué responde el asistente y qué deriva siempre a un profesional.',
+  },
+  {
+    title: 'Lanzamos',
+    text: 'Sale a producción y la primera semana revisamos juntos las conversaciones reales para ajustar el tono y las respuestas que falten.',
   },
 ]
 
@@ -240,6 +310,9 @@ export default function Clinicas() {
           </div>
         </section>
 
+        {/* ── Cifras del problema ── */}
+        <StatBand label="Lo que cuesta no responder a tiempo" stats={stats} />
+
         {/* ── Dolores ── */}
         <section className="px-6 md:px-12 py-20" style={{ background: 'rgba(6,9,16,0.6)' }}>
           <div className="max-w-5xl mx-auto">
@@ -299,6 +372,33 @@ export default function Clinicas() {
                 )
               })}
             </div>
+
+            {/* Una conversación real vale más que las cuatro tarjetas de arriba:
+                "asistente con IA" es una promesa abstracta hasta que se ve
+                resolviendo una hora un sábado por la noche. */}
+            <div className="grid lg:grid-cols-2 gap-10 lg:gap-14 items-center mt-16 pt-16"
+              style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}>
+              <div>
+                <span className="section-label mb-4 block">Así se ve funcionando</span>
+                <h3 className="font-sans font-extrabold tracking-tight mb-4"
+                  style={{ fontSize: 'clamp(1.4rem, 3vw, 1.9rem)', lineHeight: 1.15 }}>
+                  Un sábado a las nueve y media de la noche.
+                </h3>
+                <p className="text-wg-muted leading-relaxed mb-4">
+                  Nadie de tu equipo está conectado. La paciente pregunta por un
+                  precio, elige entre las horas que realmente están libres y queda
+                  agendada antes de cerrar el chat.
+                </p>
+                <p className="text-wg-muted leading-relaxed">
+                  El lunes tu recepción no encuentra un mensaje pendiente: encuentra
+                  una ficha creada, con el tratamiento, el profesional asignado y el
+                  recordatorio ya programado.
+                </p>
+              </div>
+              <div className="flex justify-center lg:justify-end">
+                <ChatDemo titulo="Asistente de la clínica" mensajes={chat} ficha={fichaChat} />
+              </div>
+            </div>
           </div>
         </section>
 
@@ -333,6 +433,21 @@ export default function Clinicas() {
             </p>
           </div>
         </section>
+
+        {/* ── Puesta en marcha ──
+            El plazo estaba sólo dentro de una FAQ. "Cuánto me va a costar en
+            tiempo" es una de las objeciones que frenan la decisión, así que
+            sube a sección y el plazo va en el titular. */}
+        <Implementacion
+          titulo="En marcha en dos a cuatro semanas."
+          bajada="No hay que parar la clínica ni cambiar cómo trabaja tu equipo. La primera semana es configuración; el resto es ajuste fino sobre conversaciones reales."
+          pasos={pasos}
+        />
+
+        {/* ── Caso real ──
+            No se renderiza mientras el caso no esté marcado como publicado en
+            src/content/casos.js. Ver ahí qué hace falta para activarlo. */}
+        <CasoDeExito caso={CASO_CLINICAS} />
 
         {/* ── Prueba social ── */}
         <VideoTestimonials />

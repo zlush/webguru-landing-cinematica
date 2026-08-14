@@ -4,6 +4,7 @@ import {
   Clock4, Users2, ClipboardX, TrendingDown, Plug,
 } from 'lucide-react'
 import { Navbar, Footer, WhatsAppFab } from '../components/Chrome'
+import { StatBand, ChatDemo, Implementacion, Confianza } from '../components/RubroSections'
 import { waHref } from '../lib/site'
 import { useSeo, useJsonLd, breadcrumb, SITE_URL } from '../hooks/useSeo'
 
@@ -14,6 +15,82 @@ import { useSeo, useJsonLd, breadcrumb, SITE_URL } from '../hooks/useSeo'
    entender que son casos del rubro inmobiliario, que es exactamente el tipo de
    señal que un corredor detecta y castiga. Cuando haya casos del rubro, se
    suman. */
+
+/* Las tres cifras salen del mismo estudio: la auditoría de Harvard Business
+   Review sobre 2.241 empresas y su tiempo de respuesta a leads web. No es un
+   estudio del rubro inmobiliario —no encontré uno público que pueda sostener—
+   pero mide exactamente el fenómeno del que habla esta página, y es preferible
+   una fuente real y citable que una cifra sectorial de origen difuso.
+
+   No hay métricas nuestras acá porque todavía no tenemos clientes medidos en
+   este rubro. Cuando los haya, van en un <CasoDeExito />, no en esta banda. */
+const HBR_LEADS = 'https://hbr.org/2011/03/the-short-life-of-online-sales-leads'
+
+const stats = [
+  {
+    n: '7×',
+    text: 'Más probable calificar a un interesado si el contacto ocurre dentro de la primera hora.',
+    fuente: 'Harvard Business Review, 2011',
+    href: HBR_LEADS,
+  },
+  {
+    n: '60×',
+    text: 'La caída si la respuesta llega recién al día siguiente, comparada con responder en la primera hora.',
+    fuente: 'Auditoría sobre 2.241 empresas',
+    href: HBR_LEADS,
+  },
+  {
+    n: '42 h',
+    text: 'Tiempo promedio de respuesta entre las empresas que sí contestaron. El 23% no contestó nunca.',
+    fuente: 'Harvard Business Review, 2011',
+    href: HBR_LEADS,
+  },
+]
+
+/* Un lead de portal que entra pasadas las diez de la noche: el escenario donde
+   la corredora chica pierde contra la grande que tiene turnos. */
+const chat = [
+  { de: 'interesado', hora: '22:14', texto: 'Hola, vi el depto de 2D2B en Ñuñoa. ¿Sigue disponible?' },
+  { de: 'bot', hora: '22:14', texto: 'Hola. Sí, sigue disponible.\n\n68 m², 2D 2B, piso 8, orientación norponiente. UF 4.290 y gastos comunes de $95.000.\n\n¿Lo estás viendo para vivir o como inversión?' },
+  { de: 'interesado', hora: '22:16', texto: 'Para vivir. ¿Se puede ver este fin de semana?' },
+  { de: 'bot', hora: '22:16', texto: 'Sí. Andrea tiene sábado 11:00 y sábado 16:30.\n\nPara dejarla agendada: ¿tienes el crédito preaprobado o lo estás evaluando?' },
+  { de: 'interesado', hora: '22:18', texto: 'Sábado 11:00. Preaprobado hasta UF 4.500' },
+  { de: 'bot', hora: '22:18', texto: 'Listo, visita agendada para el sábado a las 11:00 con Andrea. Te confirmo el viernes por acá.' },
+]
+
+const fichaChat = {
+  titulo: 'Lead calificado · asignado a Andrea',
+  filas: [
+    ['Propiedad', 'Depto. 2D2B · Ñuñoa'],
+    ['Presupuesto', 'Hasta UF 4.500 · preaprobado'],
+    ['Destino', 'Vivienda propia'],
+    ['Visita', 'Sábado 11:00 · por confirmar'],
+    ['Origen', 'Portal · 22:14'],
+  ],
+}
+
+const pasos = [
+  {
+    title: 'Conectamos',
+    text: 'Los correos de los portales, el formulario del sitio, el WhatsApp de la oficina y el Instagram entran a una sola bandeja, cada consulta con su origen identificado.',
+  },
+  {
+    title: 'Entrenamos',
+    text: 'Cargamos la cartera con sus fichas y definimos las reglas de reparto —por comuna, por proyecto, por tipo de propiedad o por turno— y las preguntas de calificación.',
+  },
+  {
+    title: 'Lanzamos',
+    text: 'Sale a producción y la primera semana ajustamos qué preguntas filtran de verdad, sobre los leads reales que van entrando.',
+  },
+]
+
+/* Señales verificables de la empresa, no logos: todavía no tenemos clientes de
+   este rubro y poner los de clínicas acá sugeriría casos que no existen. */
+const confianza = [
+  { n: '14 años', text: 'Operando en Chile con proyectos de CRM, automatización e inteligencia artificial.' },
+  { n: '2–4 sem.', text: 'Desde la puesta en marcha hasta el asistente respondiendo en producción.' },
+  { n: 'Sin migrar', text: 'Trabajamos sobre los portales, el CRM y los calendarios que ya usas.' },
+]
 
 const dolores = [
   {
@@ -154,6 +231,10 @@ export default function Inmobiliarias() {
           </div>
         </section>
 
+        {/* ── Confianza y cifras del problema ── */}
+        <Confianza items={confianza} />
+        <StatBand label="Lo que decide quién se queda con el lead" stats={stats} />
+
         {/* ── Dolores ── */}
         <section className="px-6 md:px-12 py-20" style={{ background: 'rgba(6,9,16,0.6)' }}>
           <div className="max-w-5xl mx-auto">
@@ -212,6 +293,33 @@ export default function Inmobiliarias() {
                 )
               })}
             </div>
+
+            {/* La calificación es lo que un corredor no cree hasta que la ve:
+                el mockup muestra que las preguntas se hacen solas y que lo que
+                llega no es un "hola" sino un lead con presupuesto y plazo. */}
+            <div className="grid lg:grid-cols-2 gap-10 lg:gap-14 items-center mt-16 pt-16"
+              style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}>
+              <div>
+                <span className="section-label mb-4 block">Así se ve funcionando</span>
+                <h3 className="font-sans font-extrabold tracking-tight mb-4"
+                  style={{ fontSize: 'clamp(1.4rem, 3vw, 1.9rem)', lineHeight: 1.15 }}>
+                  Un lead de portal a las diez de la noche.
+                </h3>
+                <p className="text-wg-muted leading-relaxed mb-4">
+                  Responde en segundos con los datos reales de la ficha, pregunta lo
+                  que hay que preguntar —destino, presupuesto, si el crédito está
+                  preaprobado— y deja la visita agendada contra la agenda de Andrea.
+                </p>
+                <p className="text-wg-muted leading-relaxed">
+                  Lo que el corredor abre al día siguiente no es una consulta más:
+                  es un interesado calificado, con la visita puesta y el origen del
+                  lead identificado.
+                </p>
+              </div>
+              <div className="flex justify-center lg:justify-end">
+                <ChatDemo titulo="Asistente de la corredora" mensajes={chat} ficha={fichaChat} />
+              </div>
+            </div>
           </div>
         </section>
 
@@ -241,8 +349,15 @@ export default function Inmobiliarias() {
           </div>
         </section>
 
+        {/* ── Puesta en marcha ── */}
+        <Implementacion
+          titulo="En marcha en dos a cuatro semanas."
+          bajada="No hay que cambiar de portales ni migrar la cartera. La primera semana es configuración y reglas de reparto; el resto es ajuste sobre leads reales."
+          pasos={pasos}
+        />
+
         {/* ── Preguntas frecuentes ── */}
-        <section className="px-6 md:px-12 py-20">
+        <section className="px-6 md:px-12 py-20" style={{ background: 'rgba(6,9,16,0.6)' }}>
           <div className="max-w-3xl mx-auto">
             <span className="section-label mb-4 block">Preguntas frecuentes</span>
             <h2 className="font-sans font-extrabold tracking-tight mb-10"
@@ -267,7 +382,7 @@ export default function Inmobiliarias() {
         </section>
 
         {/* ── Cierre ── */}
-        <section className="px-6 md:px-12 py-20" style={{ background: 'rgba(6,9,16,0.6)' }}>
+        <section className="px-6 md:px-12 py-20">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="font-sans font-extrabold tracking-tight mb-5"
               style={{ fontSize: 'clamp(1.7rem, 4vw, 2.5rem)', lineHeight: 1.1 }}>

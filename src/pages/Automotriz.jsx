@@ -4,6 +4,7 @@ import {
   Clock4, ListX, CarFront, TrendingDown, Plug,
 } from 'lucide-react'
 import { Navbar, Footer, WhatsAppFab } from '../components/Chrome'
+import { StatBand, ChatDemo, Implementacion, Confianza } from '../components/RubroSections'
 import { waHref } from '../lib/site'
 import { useSeo, useJsonLd, breadcrumb, SITE_URL } from '../hooks/useSeo'
 
@@ -17,6 +18,97 @@ import { useSeo, useJsonLd, breadcrumb, SITE_URL } from '../hooks/useSeo'
 
    Igual que /inmobiliarias, no monta los testimonios en video: los que tenemos
    son de clínicas y presentarlos acá sugeriría casos del rubro que no existen. */
+
+/* Misma fuente que /inmobiliarias: la auditoría de Harvard Business Review
+   sobre 2.241 empresas y su tiempo de respuesta a leads web. Hay bastante
+   estadística circulando sobre concesionarios y velocidad de respuesta, pero
+   toda la que revisé se rastrea a blogs de proveedores que se citan entre sí
+   sin estudio detrás. Preferimos una fuente real que una cifra sectorial que
+   no podríamos defender si un cliente la pregunta. */
+const HBR_LEADS = 'https://hbr.org/2011/03/the-short-life-of-online-sales-leads'
+
+const stats = [
+  {
+    n: '7×',
+    text: 'Más probable calificar a quien cotiza si el contacto ocurre dentro de la primera hora.',
+    fuente: 'Harvard Business Review, 2011',
+    href: HBR_LEADS,
+  },
+  {
+    n: '23%',
+    text: 'De las empresas auditadas nunca respondió la consulta que le llegó por su sitio web.',
+    fuente: 'Auditoría sobre 2.241 empresas',
+    href: HBR_LEADS,
+  },
+  {
+    n: '42 h',
+    text: 'Tiempo promedio de respuesta entre las que sí contestaron. El interesado ya cotizó en otra parte.',
+    fuente: 'Harvard Business Review, 2011',
+    href: HBR_LEADS,
+  },
+]
+
+/* Dos conversaciones y no una: es el argumento central de esta página. La
+   venta la inicia el cliente de madrugada; la del taller la inicia el sistema
+   por kilometraje. Mostrarlas juntas es lo que deja ver que son dos flujos
+   distintos montados por separado, y no el mismo bot con otro saludo. */
+const chatVenta = [
+  { de: 'cliente', hora: '03:12', texto: 'Hola, ¿tienen la Tucson 2024 en stock? ¿Qué versiones les quedan?' },
+  { de: 'bot', hora: '03:12', texto: 'Hola. Quedan dos versiones:\n\n· Tucson 2.0 4x2 — $21.990.000\n· Tucson 2.5 4WD — $24.990.000\n\nAmbas con entrega inmediata. ¿Te interesa alguna en particular?' },
+  { de: 'cliente', hora: '03:14', texto: 'La 4WD. ¿Se puede probar el sábado?' },
+  { de: 'bot', hora: '03:14', texto: 'Sí. Tengo sábado 10:00 y sábado 12:30 en el showroom de Las Condes.\n\n¿Cuál te acomoda?' },
+  { de: 'cliente', hora: '03:15', texto: '10:00' },
+  { de: 'bot', hora: '03:15', texto: 'Listo, test drive agendado para el sábado a las 10:00. Mañana te escribe Rodrigo, que te va a atender.' },
+]
+
+const fichaVenta = {
+  titulo: 'Lead asignado a vendedor',
+  filas: [
+    ['Interés', 'Tucson 2.5 4WD'],
+    ['Test drive', 'Sábado 10:00 · Las Condes'],
+    ['Origen', 'WhatsApp · 03:12'],
+  ],
+}
+
+const chatTaller = [
+  { de: 'bot', hora: '09:00', texto: 'Hola Ignacio. Según el último registro, tu Tucson está llegando a los 20.000 km y toca mantención.\n\n¿Te reservo hora?' },
+  { de: 'cliente', hora: '09:11', texto: 'Sí, ¿qué tienen disponible?' },
+  { de: 'bot', hora: '09:11', texto: 'Esta semana me quedan:\n· Jueves 08:30\n· Viernes 10:00\n\nLa mantención de 20.000 km toma unas 3 horas.' },
+  { de: 'cliente', hora: '09:12', texto: 'Jueves' },
+  { de: 'bot', hora: '09:12', texto: 'Listo, jueves a las 08:30. Te aviso el miércoles y si no puedes, liberamos la hora.' },
+]
+
+const fichaTaller = {
+  titulo: 'Hora de servicio reservada',
+  filas: [
+    ['Servicio', 'Mantención 20.000 km'],
+    ['Hora', 'Jueves 08:30 · box 2'],
+    ['Gatillo', 'Kilometraje · campaña automática'],
+  ],
+}
+
+const pasos = [
+  {
+    title: 'Conectamos',
+    text: 'El WhatsApp de ventas, el del taller y el Instagram entran a una bandeja con las conversaciones separadas por área, por delante del sistema que ya lleva el stock.',
+  },
+  {
+    title: 'Entrenamos',
+    text: 'Cargamos catálogo, versiones, precios y condiciones generales, y montamos los dos flujos por separado: el de venta y el de servicio no comparten guion.',
+  },
+  {
+    title: 'Lanzamos',
+    text: 'Sale a producción y se ajusta sobre cotizaciones reales. Los recordatorios de mantención parten con la base de clientes que ya tienes.',
+  },
+]
+
+/* Señales de la empresa, no logos: todavía no tenemos clientes de este rubro
+   y montar acá los de clínicas sugeriría casos que no existen. */
+const confianza = [
+  { n: '14 años', text: 'Operando en Chile con proyectos de CRM, automatización e inteligencia artificial.' },
+  { n: '2–4 sem.', text: 'Desde la puesta en marcha hasta el asistente respondiendo en producción.' },
+  { n: 'Sin migrar', text: 'Trabajamos sobre el sistema de gestión y los calendarios de taller que ya usas.' },
+]
 
 const dolores = [
   {
@@ -157,6 +249,10 @@ export default function Automotriz() {
           </div>
         </section>
 
+        {/* ── Confianza y cifras del problema ── */}
+        <Confianza items={confianza} />
+        <StatBand label="Lo que cuesta responder tarde" stats={stats} />
+
         {/* ── Dolores ── */}
         <section className="px-6 md:px-12 py-20" style={{ background: 'rgba(6,9,16,0.6)' }}>
           <div className="max-w-5xl mx-auto">
@@ -215,6 +311,26 @@ export default function Automotriz() {
                 )
               })}
             </div>
+
+            {/* Los dos flujos, uno al lado del otro. Puestos en columna se leían
+                como la misma demo repetida; en paralelo se ve de inmediato que
+                uno lo empieza el cliente y el otro lo empieza el sistema. */}
+            <div className="mt-16 pt-16" style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}>
+              <span className="section-label mb-4 block">Así se ve funcionando</span>
+              <h3 className="font-sans font-extrabold tracking-tight mb-4"
+                style={{ fontSize: 'clamp(1.4rem, 3vw, 1.9rem)', lineHeight: 1.15 }}>
+                Una la empieza el cliente. La otra la empieza el sistema.
+              </h3>
+              <p className="text-wg-muted leading-relaxed max-w-2xl mb-11">
+                A la izquierda, una consulta de stock a las tres de la mañana que
+                termina en test drive agendado. A la derecha, una mantención que
+                nadie tuvo que recordar: la dispara el kilometraje.
+              </p>
+              <div className="grid lg:grid-cols-2 gap-8 justify-items-center">
+                <ChatDemo titulo="Asistente de ventas" mensajes={chatVenta} ficha={fichaVenta} />
+                <ChatDemo titulo="Asistente de taller" mensajes={chatTaller} ficha={fichaTaller} />
+              </div>
+            </div>
           </div>
         </section>
 
@@ -244,8 +360,15 @@ export default function Automotriz() {
           </div>
         </section>
 
+        {/* ── Puesta en marcha ── */}
+        <Implementacion
+          titulo="En marcha en dos a cuatro semanas."
+          bajada="Una automotora con taller propio toma más que un taller independiente, porque son dos flujos que se montan y ajustan por separado. Ninguno de los dos exige tocar tu sistema de gestión."
+          pasos={pasos}
+        />
+
         {/* ── Preguntas frecuentes ── */}
-        <section className="px-6 md:px-12 py-20">
+        <section className="px-6 md:px-12 py-20" style={{ background: 'rgba(6,9,16,0.6)' }}>
           <div className="max-w-3xl mx-auto">
             <span className="section-label mb-4 block">Preguntas frecuentes</span>
             <h2 className="font-sans font-extrabold tracking-tight mb-10"
@@ -270,7 +393,7 @@ export default function Automotriz() {
         </section>
 
         {/* ── Cierre ── */}
-        <section className="px-6 md:px-12 py-20" style={{ background: 'rgba(6,9,16,0.6)' }}>
+        <section className="px-6 md:px-12 py-20">
           <div className="max-w-3xl mx-auto text-center">
             <h2 className="font-sans font-extrabold tracking-tight mb-5"
               style={{ fontSize: 'clamp(1.7rem, 4vw, 2.5rem)', lineHeight: 1.1 }}>
