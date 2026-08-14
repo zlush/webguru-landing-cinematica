@@ -4,7 +4,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { Link } from 'react-router-dom'
 import { Navbar, Footer, WhatsAppFab } from './components/Chrome'
 import VideoTestimonials from './components/VideoTestimonials'
-import Aurora from './components/Aurora'
+import Orbe from './components/Orbe'
 import { ARTICLES } from './content/articles'
 import { useSeo, useJsonLd, SITE_URL } from './hooks/useSeo'
 import {
@@ -39,107 +39,16 @@ const PREFERS_REDUCED_MOTION =
    (4G, CPU x4) daba LCP 4.572 ms, y el elemento LCP era un párrafo de texto —
    o sea, el texto tardaba porque el hilo principal estaba ocupado ejecutando
    ese JS, no porque el hero fuera visualmente pesado.
-   Lo reemplaza un mockup del producto hecho con DOM y CSS: peso adicional
-   cero, y además muestra lo que se vende.
+   Después vino un mockup de bandeja unificada (HeroInbox) hecho con DOM y CSS,
+   y ahora ocupa esa columna <Orbe />: una esfera armilar de puntos en canvas 2D,
+   portada del sitio de Cardus. Sigue valiendo la regla que dejó Spline —nada de
+   librerías 3D sobre el pliegue— y por eso el orbe se monta recién después del
+   primer pintado y no existe en móvil.
+
+   HeroInbox queda en el historial (commit anterior a éste). Vale la pena
+   recuperarlo para la sección de Plataforma, que es donde el argumento de la
+   bandeja única se desarrolla de verdad.
 ────────────────────────────────────────── */
-
-const INBOX_MESSAGES = [
-  { channel: 'WhatsApp', who: 'Camila Rojas', text: '¿Tienen hora disponible el martes?', time: '10:31', color: '#25D366', Icon: MessageSquare },
-  { channel: 'Instagram', who: '@estudio.lm', text: 'Hola! Me interesan los precios', time: '10:33', color: '#E1306C', Icon: Instagram },
-  { channel: 'Email', who: 'javier@empresa.cl', text: 'Cotización para 12 personas', time: '10:35', color: '#0693E3', Icon: Mail },
-  { channel: 'Facebook', who: 'Marcela Díaz', text: '¿Atienden los sábados?', time: '10:38', color: '#1877F2', Icon: Facebook },
-  { channel: 'WhatsApp', who: 'Ignacio Soto', text: 'Confirmo mi hora, gracias', time: '10:41', color: '#25D366', Icon: MessageSquare },
-]
-
-function HeroInbox() {
-  const [head, setHead] = useState(0)
-
-  useEffect(() => {
-    if (PREFERS_REDUCED_MOTION) return
-    const id = setInterval(() => setHead(h => (h + 1) % INBOX_MESSAGES.length), 3200)
-    return () => clearInterval(id)
-  }, [])
-
-  // Three visible rows, rotating. Same "shuffler" idea used in the Features
-  // cards, so the hero speaks the same visual language as the rest of the page.
-  const visible = [0, 1, 2].map(i => INBOX_MESSAGES[(head + i) % INBOX_MESSAGES.length])
-
-  return (
-    <div className="relative w-full" aria-hidden="true">
-      {/* Brand glow behind the card */}
-      <div className="absolute -inset-8 pointer-events-none" style={{
-        background: 'radial-gradient(ellipse 60% 55% at 55% 45%, rgba(123,97,255,0.18), transparent 70%)',
-        filter: 'blur(10px)',
-      }} />
-
-      <div className="relative card-surface rounded-4xl p-5 lg:p-6 shadow-2xl shadow-black/40">
-        {/* Card header */}
-        <div className="flex items-center justify-between mb-5">
-          <div>
-            <span className="section-label" style={{ fontSize: '0.62rem' }}>Bandeja unificada</span>
-            <p className="font-sans font-bold text-sm mt-1">Todos tus canales, un inbox</p>
-          </div>
-          <div className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-wider text-emerald-400">
-            <span className="relative grid place-items-center w-2 h-2">
-              <span className="absolute inset-0 rounded-full bg-emerald-400 ping-slow" />
-              <span className="relative w-2 h-2 rounded-full bg-emerald-400" />
-            </span>
-            Live
-          </div>
-        </div>
-
-        {/* Rotating message rows */}
-        <div className="flex flex-col gap-2.5" style={{ minHeight: 222 }}>
-          {visible.map((m, i) => (
-            <div
-              key={`${m.who}-${m.time}`}
-              className="wg-msg flex items-start gap-3 rounded-2xl px-3.5 py-3"
-              style={{
-                background: i === 0 ? 'rgba(30,42,58,0.75)' : 'rgba(18,24,38,0.5)',
-                border: `1px solid ${i === 0 ? 'rgba(123,97,255,0.35)' : 'rgba(255,255,255,0.06)'}`,
-                opacity: 1 - i * 0.22,
-              }}
-            >
-              <span className="grid place-items-center rounded-xl flex-shrink-0"
-                style={{ width: 32, height: 32, background: `${m.color}1F` }}>
-                <m.Icon size={15} style={{ color: m.color }} />
-              </span>
-              <div className="min-w-0 flex-1">
-                <div className="flex items-baseline justify-between gap-2">
-                  <span className="font-sans font-bold text-xs truncate">{m.who}</span>
-                  <span className="font-mono text-[10px] text-wg-muted flex-shrink-0">{m.time}</span>
-                </div>
-                <p className="text-xs text-wg-muted truncate mt-0.5">{m.text}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* AI footer */}
-        <div className="flex items-center gap-2.5 mt-5 pt-4" style={{ borderTop: '1px solid rgba(255,255,255,0.07)' }}>
-          <span className="grid place-items-center rounded-xl flex-shrink-0"
-            style={{ width: 30, height: 30, background: 'rgba(123,97,255,0.16)' }}>
-            <Bot size={15} className="text-wg-purple" />
-          </span>
-          <p className="text-xs text-wg-muted leading-snug">
-            <span className="text-white/90 font-semibold">Asistente IA</span> respondió en 4s
-            y agendó <span className="wg-gradient-text font-bold">2 citas</span>
-          </p>
-        </div>
-      </div>
-
-      {/* The Guru, presenting the card. Sits clear of the card's corner —
-          overlapping it clipped his laptop and looked like a mistake. */}
-      <img
-        src="/guru-cartoon.webp"
-        alt=""
-        width="200" height="200"
-        className="absolute float pointer-events-none select-none hidden lg:block"
-        style={{ width: 158, height: 'auto', right: -52, bottom: -84, filter: 'drop-shadow(0 12px 34px rgba(109,27,208,0.45))' }}
-      />
-    </div>
-  )
-}
 
 /* El hero NO se anima al entrar, a propósito.
    gsap.from() ponía este contenido en opacity 0 al montar React y lo revelaba
@@ -151,13 +60,21 @@ function HeroInbox() {
 function Hero() {
   return (
     <section className="relative min-h-screen flex items-end md:items-center overflow-hidden">
-      {/* Fondo. El degradado CSS es la base y se ve siempre; la aurora WebGL se
-          suma encima solo en desktop y después del primer pintado. */}
+      {/* Fondo: sólo los degradados CSS.
+
+          Acá iba <Aurora />, la cortina WebGL. Se sacó al entrar el orbe, no por
+          rendimiento sino porque se pisaban: el shader de la aurora dirige la luz
+          "por arriba y por la derecha, que es donde la composición está vacía"
+          —así lo dice su propio comentario— y ahí es exactamente donde ahora vive
+          el orbe. Con las dos capas, los puntos perdían contraste contra el lóbulo
+          más brillante y la esfera se leía sucia.
+
+          El componente sigue en src/components/Aurora.jsx, intacto y sin importar,
+          por si se quiere en otra sección. */}
       <div className="absolute inset-0 z-0 bg-[#060910]">
         <div className="absolute inset-0" style={{
           background: 'radial-gradient(ellipse 70% 60% at 75% 40%, rgba(6,147,227,0.10), transparent 65%), radial-gradient(ellipse 55% 50% at 88% 70%, rgba(155,81,224,0.12), transparent 70%)',
         }} />
-        <Aurora />
         <div className="absolute inset-x-0 bottom-0 h-40 pointer-events-none"
           style={{ background: 'linear-gradient(to top, #0A0E1A 0%, transparent 100%)' }} />
       </div>
@@ -208,7 +125,7 @@ function Hero() {
 
         {/* ── Columna visual: solo desde md, para no alargar el hero en móvil ── */}
         <div className="hidden md:block">
-          <HeroInbox />
+          <Orbe />
         </div>
       </div>
     </section>
