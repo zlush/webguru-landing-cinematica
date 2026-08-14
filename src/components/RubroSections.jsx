@@ -195,75 +195,103 @@ export function Implementacion({ titulo, bajada, pasos }) {
 }
 
 /* ─────────────────────────────────────────────
-   CASO DE ÉXITO
-   Acá sí van números propios. Se renderiza sólo si el caso está marcado como
-   publicado: mientras el cliente no confirme las cifras y la autorización, la
-   sección entera no existe. Es deliberado que el default sea no mostrar nada —
-   una métrica estimada en una landing es una promesa que después hay que
-   sostener en la reunión.
+   CASOS DE ÉXITO
+   Acá sí van números propios. Sólo se renderizan los casos marcados como
+   publicados, y si no hay ninguno la sección entera no existe. Es deliberado
+   que el default sea no mostrar nada: publicar el nombre y las cifras de un
+   cliente es una decisión suya, y una métrica que no podamos sostener en la
+   reunión siguiente hace más daño que no tener sección.
 ───────────────────────────────────────────── */
-export function CasoDeExito({ caso }) {
-  if (!caso || !caso.publicado) return null
+
+/* El número de métricas varía por caso: hay clientes con tres cifras sólidas y
+   otros con dos. Rellenar hasta tres con un número blando es lo que hace que un
+   prospecto descuente también los buenos, así que la grilla se adapta. Las
+   clases van completas y no interpoladas, que es lo único que Tailwind ve. */
+const COLUMNAS = { 1: 'sm:grid-cols-1', 2: 'sm:grid-cols-2', 3: 'sm:grid-cols-3' }
+
+function Caso({ caso }) {
+  return (
+    <article className="card-surface rounded-4xl p-7 sm:p-10">
+      <div className="flex items-center gap-4 mb-8">
+        {caso.logo && (
+          <img
+            src={caso.logo}
+            alt={caso.cliente}
+            loading="lazy"
+            decoding="async"
+            /* Más alto que en la franja de logos de la home: acá el logo va
+               solo, junto al nombre, y varios de estos archivos son marcas con
+               texto que a h-9 quedan ilegibles. El max-w evita que los más
+               apaisados empujen al nombre fuera de la tarjeta. */
+            className="h-11 w-auto max-w-[170px] object-contain flex-shrink-0"
+            style={{ filter: 'brightness(0) invert(1)', opacity: 0.75 }}
+          />
+        )}
+        <div>
+          <p className="font-sans font-bold text-base">{caso.cliente}</p>
+          <p className="text-sm text-wg-muted">{caso.contexto}</p>
+        </div>
+      </div>
+
+      <h3
+        className="font-sans font-extrabold tracking-tight mb-8"
+        style={{ fontSize: 'clamp(1.3rem, 2.8vw, 1.75rem)', lineHeight: 1.15 }}
+      >
+        {caso.titular}
+      </h3>
+
+      <div className={`grid grid-cols-1 ${COLUMNAS[caso.metricas.length] || 'sm:grid-cols-3'} gap-7 sm:gap-6 mb-9`}>
+        {caso.metricas.map((m) => (
+          <div key={m.text}>
+            <p
+              className="font-sans font-extrabold tracking-tight wg-gradient-text mb-1.5"
+              style={{ fontSize: 'clamp(2rem, 5vw, 2.75rem)', lineHeight: 1 }}
+            >
+              {m.n}
+            </p>
+            <p className="text-sm text-wg-muted leading-relaxed">{m.text}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="flex flex-col gap-4" style={{ borderTop: '1px solid rgba(255,255,255,0.07)', paddingTop: '2rem' }}>
+        {caso.relato.map((p) => (
+          <p key={p} className="text-sm text-wg-muted leading-relaxed">{p}</p>
+        ))}
+      </div>
+
+      {caso.cita && (
+        <blockquote className="mt-8 pl-5" style={{ borderLeft: '2px solid #0693E3' }}>
+          <Quote size={16} className="text-wg-blue mb-2" />
+          <p className="text-base leading-relaxed mb-2">{caso.cita.texto}</p>
+          <footer className="text-sm text-wg-muted">
+            {caso.cita.autor}
+            {caso.cita.cargo && <span> · {caso.cita.cargo}</span>}
+          </footer>
+        </blockquote>
+      )}
+    </article>
+  )
+}
+
+export function CasosDeExito({ casos, titulo }) {
+  const publicados = (casos || []).filter(c => c.publicado)
+  if (!publicados.length) return null
 
   return (
     <section className="px-6 md:px-12 py-20" style={{ background: 'rgba(6,9,16,0.6)' }}>
       <div className="max-w-5xl mx-auto">
-        <span className="section-label mb-4 block">Caso real</span>
+        <span className="section-label mb-4 block">
+          {publicados.length > 1 ? 'Casos reales' : 'Caso real'}
+        </span>
         <h2
           className="font-sans font-extrabold tracking-tight mb-11"
           style={{ fontSize: 'clamp(1.6rem, 3.5vw, 2.25rem)', lineHeight: 1.1 }}
         >
-          {caso.titular}
+          {titulo}
         </h2>
-
-        <div className="card-surface rounded-4xl p-7 sm:p-10">
-          <div className="flex items-center gap-4 mb-9">
-            {caso.logo && (
-              <img
-                src={caso.logo}
-                alt={caso.cliente}
-                loading="lazy"
-                decoding="async"
-                className="h-9 w-auto"
-                style={{ filter: 'brightness(0) invert(1)', opacity: 0.75 }}
-              />
-            )}
-            <div>
-              <p className="font-sans font-bold text-base">{caso.cliente}</p>
-              <p className="text-sm text-wg-muted">{caso.contexto}</p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-7 sm:gap-6 mb-9">
-            {caso.metricas.map((m) => (
-              <div key={m.text}>
-                <p
-                  className="font-sans font-extrabold tracking-tight wg-gradient-text mb-1.5"
-                  style={{ fontSize: 'clamp(2rem, 5vw, 2.75rem)', lineHeight: 1 }}
-                >
-                  {m.n}
-                </p>
-                <p className="text-sm text-wg-muted leading-relaxed">{m.text}</p>
-              </div>
-            ))}
-          </div>
-
-          <div className="flex flex-col gap-4" style={{ borderTop: '1px solid rgba(255,255,255,0.07)', paddingTop: '2rem' }}>
-            {caso.relato.map((p) => (
-              <p key={p} className="text-sm text-wg-muted leading-relaxed">{p}</p>
-            ))}
-          </div>
-
-          {caso.cita && (
-            <blockquote className="mt-8 pl-5" style={{ borderLeft: '2px solid #0693E3' }}>
-              <Quote size={16} className="text-wg-blue mb-2" />
-              <p className="text-base leading-relaxed mb-2">{caso.cita.texto}</p>
-              <footer className="text-sm text-wg-muted">
-                {caso.cita.autor}
-                {caso.cita.cargo && <span> · {caso.cita.cargo}</span>}
-              </footer>
-            </blockquote>
-          )}
+        <div className="flex flex-col gap-6">
+          {publicados.map(c => <Caso key={c.cliente} caso={c} />)}
         </div>
       </div>
     </section>

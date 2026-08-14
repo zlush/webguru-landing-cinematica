@@ -5,8 +5,8 @@ import {
 } from 'lucide-react'
 import { Navbar, Footer, WhatsAppFab } from '../components/Chrome'
 import VideoTestimonials from '../components/VideoTestimonials'
-import { StatBand, ChatDemo, Implementacion, CasoDeExito } from '../components/RubroSections'
-import { CASO_CLINICAS } from '../content/casos'
+import { StatBand, ChatDemo, Implementacion, CasosDeExito } from '../components/RubroSections'
+import { CASOS_CLINICAS } from '../content/casos'
 import { waHref } from '../lib/site'
 import { useSeo, useJsonLd, breadcrumb, SITE_URL } from '../hooks/useSeo'
 
@@ -444,10 +444,14 @@ export default function Clinicas() {
           pasos={pasos}
         />
 
-        {/* ── Caso real ──
-            No se renderiza mientras el caso no esté marcado como publicado en
-            src/content/casos.js. Ver ahí qué hace falta para activarlo. */}
-        <CasoDeExito caso={CASO_CLINICAS} />
+        {/* ── Casos reales ──
+            Sólo se renderizan los casos marcados como publicados en
+            src/content/casos.js, y si no hay ninguno la sección no existe.
+            Ver ahí qué hace falta para activarlos. */}
+        <CasosDeExito
+          casos={CASOS_CLINICAS}
+          titulo="Lo que pasó en clínicas como la tuya."
+        />
 
         {/* ── Prueba social ── */}
         <VideoTestimonials />
