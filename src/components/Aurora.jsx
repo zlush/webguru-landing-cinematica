@@ -67,12 +67,28 @@ void main() {
   float core    = pow(smoothstep(0.42, 0.86, v), 2.0);
 
   // El titular ocupa aproximadamente uv.x 0.13–0.49, así que ese tramo se
-  // mantiene oscuro. La luz entra por arriba y por la derecha, que es donde la
-  // composición está vacía.
+  // mantiene oscuro. La luz entra por arriba y por la derecha.
   float side   = smoothstep(0.18, 0.92, uv.x);
   float upper  = smoothstep(0.12, 0.95, uv.y);
   float bottom = smoothstep(0.42, 0.0, uv.y) * 0.30;
   float mask   = upper * (0.30 + 0.70 * side) + bottom * side;
+
+  // Hueco alrededor del orbe.
+  //
+  // Este shader se escribió cuando la derecha del hero estaba vacía, y por eso
+  // manda la luz justo ahí. Desde que vive ahí la esfera de puntos, el lóbulo
+  // más brillante le caía encima: los puntos perdían contraste contra el fondo
+  // y la esfera se leía sucia. Se probó y se descartó quitar la aurora entera;
+  // esto conserva el movimiento del fondo y le devuelve el negro al orbe.
+  //
+  // El centro va fijo porque la posición del orbe también lo es —la columna
+  // derecha de la grilla del hero— y la aurora sólo se monta desde 1024px, que
+  // es exactamente donde esa grilla existe. La corrección por aspecto hace que
+  // el hueco sea un círculo en pantalla y no una elipse.
+  vec2  centroOrbe = vec2(0.72, 0.50);
+  vec2  haciaOrbe  = (uv - centroOrbe) * vec2(u_res.x / u_res.y, 1.0);
+  float hueco      = smoothstep(0.06, 0.42, length(haciaOrbe));
+  mask *= mix(0.16, 1.0, hueco);
 
   vec3 blue   = vec3(0.024, 0.576, 0.890);   // #0693E3
   vec3 purple = vec3(0.608, 0.318, 0.878);   // #9B51E0
