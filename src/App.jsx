@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom'
 import { Navbar, Footer, WhatsAppFab } from './components/Chrome'
 import VideoTestimonials from './components/VideoTestimonials'
 import Orbe from './components/Orbe'
+import { prefiereQuietud } from './lib/movimiento'
 import { ARTICLES } from './content/articles'
 import { useSeo, useJsonLd, SITE_URL } from './hooks/useSeo'
 import {
@@ -28,9 +29,7 @@ gsap.registerPlugin(ScrollTrigger)
 // they are created, so anything that still builds the tween leaves content
 // invisible until its ScrollTrigger fires. Never creating them keeps every
 // element in its natural, visible state.
-const PREFERS_REDUCED_MOTION =
-  typeof window !== 'undefined' &&
-  window.matchMedia('(prefers-reduced-motion: reduce)').matches
+const PREFERS_REDUCED_MOTION = prefiereQuietud()
 
 /* ──────────────────────────────────────────
    HERO

@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 
+import { prefiereQuietud } from '../lib/movimiento'
+
 /* Fondo animado del hero: una aurora de luz que se desplaza lento en los colores
    de la marca. Es lo que la escena de Spline prometía y no entregaba — aquella
    pesaba ~6 MB entre escena y runtime para renderizar una grilla de puntos casi
@@ -98,9 +100,8 @@ export default function Aurora() {
 
   // Decide si corresponde montarlo, ya pasado el primer pintado.
   useEffect(() => {
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     const wide = window.matchMedia('(min-width: 1024px)').matches
-    if (reduce || !wide) return
+    if (prefiereQuietud() || !wide) return
 
     const idle = window.requestIdleCallback || (cb => setTimeout(cb, 900))
     const cancel = window.cancelIdleCallback || clearTimeout

@@ -205,16 +205,24 @@ section[id], [id]:target { scroll-margin-top: 110px; }
 /* ── Reduced motion ──
    Kills the decorative loops. GSAP entrances are handled in App.jsx: they are
    all gsap.from/fromTo, so collapsing the global timeline lands every element
-   on its natural (visible) state without any movement. */
+   on its natural (visible) state without any movement.
+
+   Cada selector va bajo `html:not([data-movimiento="forzado"])`. Ese atributo lo
+   pone marcarDocumento() en main.jsx cuando la URL trae ?movimiento=1, y es lo
+   que permite revisar el sitio animado en un equipo con los efectos del sistema
+   apagados. Sin esta condición, ese interruptor reviviría sólo las animaciones
+   de JS y dejaría muertas las de CSS. */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  html:not([data-movimiento="forzado"]) *,
+  html:not([data-movimiento="forzado"]) *::before,
+  html:not([data-movimiento="forzado"]) *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
   /* The logo strip is an infinite horizontal crawl — make it a static,
      wrapped row instead of a frozen overflowing one. */
-  .marquee-track {
+  html:not([data-movimiento="forzado"]) .marquee-track {
     animation: none !important;
     width: 100%;
     flex-wrap: wrap;
@@ -222,5 +230,5 @@ section[id], [id]:target { scroll-margin-top: 110px; }
     row-gap: 1.5rem;
   }
   /* Keep the blinking cursor legible rather than stuck mid-blink. */
-  .cursor-blink { opacity: 1 !important; }
+  html:not([data-movimiento="forzado"]) .cursor-blink { opacity: 1 !important; }
 }

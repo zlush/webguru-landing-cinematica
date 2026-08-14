@@ -2,6 +2,7 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import './index.css'
+import { marcarDocumento } from './lib/movimiento.js'
 import App from './App.jsx'
 import Calculadora from './Calculadora.jsx'
 import ScrollToTop from './components/ScrollToTop.jsx'
@@ -28,6 +29,11 @@ import EstudioDeMercado from './pages/articles/EstudioDeMercado.jsx'
 import EncuestaWhatsapp from './pages/articles/EncuestaWhatsapp.jsx'
 import CerradoPorVacaciones from './pages/articles/CerradoPorVacaciones.jsx'
 import PieDeFirma from './pages/articles/PieDeFirma.jsx'
+
+/* Antes del render: marca el <html> cuando la URL trae ?movimiento=1, para que
+   el bloque de reduced-motion de index.css se deje saltar. Va acá y no dentro
+   de un componente porque tiene que estar puesto antes del primer pintado. */
+marcarDocumento()
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 
+import { prefiereQuietud } from '../lib/movimiento'
+
 /**
  * Esfera armilar de puntos, reactiva al cursor. Ocupa la columna derecha del
  * hero, donde antes estaba el mockup del inbox.
@@ -158,7 +160,9 @@ export default function Orbe() {
     // cursor sobre el titular ya inclina la esfera.
     const zona = contenedor.closest('section') || contenedor.parentElement
 
-    const quieto = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    // No es matchMedia directo: `?movimiento=1` tiene que poder forzar el giro
+    // en un equipo con los efectos del sistema apagados. Ver lib/movimiento.js.
+    const quieto = prefiereQuietud()
     const puntos = construirEsfera()
     const total = puntos.length
 
